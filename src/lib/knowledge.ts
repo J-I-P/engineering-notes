@@ -1,4 +1,8 @@
 import type { CollectionEntry } from 'astro:content';
+import { FEATURED_TOPICS, topicBySlug } from '../data/topics';
+import { withBase } from './urls';
+
+export { FEATURED_TOPICS, TOPICS, topicBySlug } from '../data/topics';
 
 type KnowledgeEntry = CollectionEntry<'knowledge'>;
 export type RelationType = KnowledgeEntry['data']['relations'][number]['type'];
@@ -35,7 +39,17 @@ export const RELATION_LABELS: Record<RelationType, string> = {
 };
 
 export function nodeHref(nodeId: string) {
-  return `/knowledge/${nodeId}/`;
+  return withBase(`/knowledge/${nodeId}/`);
+}
+
+export function topicHref(topic: string) {
+  return withBase(`/explore/${topic}/`);
+}
+
+export function compareByRecency(a: KnowledgeEntry, b: KnowledgeEntry) {
+  const aDate = a.data.updatedAt ?? a.data.publishedAt;
+  const bDate = b.data.updatedAt ?? b.data.publishedAt;
+  return bDate.getTime() - aDate.getTime() || a.data.nodeId.localeCompare(b.data.nodeId);
 }
 
 export function indexByNodeId(entries: KnowledgeEntry[]) {
@@ -61,12 +75,24 @@ export function backlinks(entry: KnowledgeEntry, allEntries: KnowledgeEntry[]) {
   );
 }
 
-export function sameProject(entry: KnowledgeEntry, allEntries: KnowledgeEntry[]) {
-  if (!entry.data.project) return [];
+export function featuredTopicFor(entry: KnowledgeEntry) {
+  return FEATURED_TOPICS.find((topic) => entry.data.topics.includes(topic.slug));
+}
+
+export function topicsFor(entry: KnowledgeEntry) {
+  return entry.data.topics.flatMap((slug) => {
+    const topic = topicBySlug(slug);
+    return topic ? [topic] : [];
+  });
+}
+
+export function sameFeaturedTopic(entry: KnowledgeEntry, allEntries: KnowledgeEntry[]) {
+  const topic = featuredTopicFor(entry);
+  if (!topic) return [];
   return allEntries.filter(
     (candidate) =>
       candidate.data.nodeId !== entry.data.nodeId &&
-      candidate.data.project === entry.data.project,
+      candidate.data.topics.includes(topic.slug),
   );
 }
 

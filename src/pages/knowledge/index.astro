@@ -1,0 +1,70 @@
+---
+import { getCollection } from 'astro:content';
+import KnowledgeCard from '../../components/KnowledgeCard.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { compareByRecency, TOPICS, TYPE_LABELS } from '../../lib/knowledge';
+
+const entries = (await getCollection('knowledge', ({ data }) => !data.draft)).sort(compareByRecency);
+const types = ['case', 'research', 'experiment', 'learning', 'takeaway', 'project', 'question'] as const;
+const usedTopics = TOPICS.filter((topic) => entries.some((entry) => entry.data.topics.includes(topic.slug)));
+---
+
+<BaseLayout title="Knowledge — J-I-P" description="Browse every public engineering knowledge node by type and topic.">
+  <main class="container archive">
+    <header>
+      <div class="eyebrow">Knowledge archive</div>
+      <h1>Every node, still connected.</h1>
+      <p>Browse the complete public knowledge collection. Filter by what a node represents or by the engineering topic it contributes to.</p>
+    </header>
+
+    <form class="filters" aria-label="Filter knowledge nodes">
+      <label>Type<select name="type"><option value="all">All types</option>{types.map((type) => <option value={type}>{TYPE_LABELS[type]}</option>)}</select></label>
+      <label>Topic<select name="topic"><option value="all">All topics</option>{usedTopics.map((topic) => <option value={topic.slug}>{topic.title}</option>)}</select></label>
+      <output aria-live="polite">{entries.length} nodes</output>
+    </form>
+
+    <div class="grid grid-3 archive-grid">
+      {entries.map((entry) => <div data-entry data-type={entry.data.type} data-topics={entry.data.topics.join(' ')}><KnowledgeCard entry={entry} /></div>)}
+    </div>
+    <p class="empty muted" hidden>No knowledge nodes match these filters.</p>
+  </main>
+
+  <script>
+    const form = document.querySelector<HTMLFormElement>('.filters');
+    const items = [...document.querySelectorAll<HTMLElement>('[data-entry]')];
+    const output = form?.querySelector('output');
+    const empty = document.querySelector<HTMLElement>('.empty');
+
+    function applyFilters() {
+      if (!form) return;
+      const data = new FormData(form);
+      const type = String(data.get('type') ?? 'all');
+      const topic = String(data.get('topic') ?? 'all');
+      let visible = 0;
+      for (const item of items) {
+        const topics = (item.dataset.topics ?? '').split(' ');
+        const matches = (type === 'all' || item.dataset.type === type) && (topic === 'all' || topics.includes(topic));
+        item.hidden = !matches;
+        if (matches) visible += 1;
+      }
+      if (output) output.textContent = `${visible} ${visible === 1 ? 'node' : 'nodes'}`;
+      if (empty) empty.hidden = visible !== 0;
+    }
+
+    form?.addEventListener('change', applyFilters);
+  </script>
+
+  <style>
+    .archive { padding: 68px 0 90px; }
+    header { max-width: 760px; margin-bottom: 32px; }
+    h1 { margin: 10px 0 15px; font-size: clamp(2.8rem, 5vw, 5rem); letter-spacing: -.06em; }
+    header p { color: var(--muted); line-height: 1.65; }
+    .filters { display: flex; align-items: end; gap: 12px; flex-wrap: wrap; padding: 16px; margin-bottom: 22px; border: 1px solid var(--line); border-radius: 14px; background: rgba(11,19,43,.72); }
+    label { display: grid; gap: 6px; color: var(--muted); font-size: .72rem; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
+    select { min-width: 180px; padding: 9px 34px 9px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); color: var(--text); }
+    output { margin-left: auto; padding: 9px 4px; color: var(--muted); font-size: .82rem; }
+    [data-entry] > :global(.knowledge-card) { height: 100%; }
+    .empty { padding: 36px 0; text-align: center; }
+    @media (max-width: 560px) { label, select { width: 100%; } output { margin-left: 0; } }
+  </style>
+</BaseLayout>

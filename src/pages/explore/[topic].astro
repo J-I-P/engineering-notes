@@ -1,0 +1,20 @@
+---
+import { getCollection } from 'astro:content';
+import ExploreView from '../../components/ExploreView.astro';
+import { TOPICS } from '../../data/topics';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('knowledge', ({ data }) => !data.draft);
+  const usedTopics = new Set(entries.flatMap((entry) => entry.data.topics));
+  return TOPICS
+    .filter((topic) => usedTopics.has(topic.slug))
+    .map((topic) => ({ params: { topic: topic.slug }, props: { topic, entries } }));
+}
+
+const { topic, entries } = Astro.props;
+---
+
+<BaseLayout title={`${topic.title} — Explore — J-I-P`} description={topic.description}>
+  <ExploreView entries={entries} topic={topic} />
+</BaseLayout>

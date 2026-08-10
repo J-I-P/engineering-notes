@@ -44,7 +44,6 @@ const knowledge = defineCollection({
     publishedAt: z.coerce.date(),
     updatedAt: z.coerce.date().optional(),
     topics: z.array(z.string()).default([]),
-    project: z.string().optional(),
     parent: z.object({
       target: z.string(),
       relation: relationType,
