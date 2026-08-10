@@ -1,0 +1,88 @@
+import type { CollectionEntry } from 'astro:content';
+
+type KnowledgeEntry = CollectionEntry<'knowledge'>;
+export type RelationType = KnowledgeEntry['data']['relations'][number]['type'];
+
+export const TYPE_LABELS: Record<KnowledgeEntry['data']['type'], string> = {
+  case: 'Engineering Case',
+  project: 'Project',
+  research: 'Research',
+  experiment: 'Experiment',
+  learning: 'Learning',
+  takeaway: 'Takeaway',
+  question: 'Open Question',
+};
+
+export const STATUS_LABELS: Record<KnowledgeEntry['data']['status'], string> = {
+  seed: 'Seed',
+  exploring: 'Exploring',
+  experimenting: 'Experimenting',
+  learned: 'Learned',
+  applied: 'Applied',
+  verified: 'Verified',
+};
+
+export const RELATION_LABELS: Record<RelationType, string> = {
+  derived_from: 'Derived from',
+  investigates: 'Investigates',
+  tested_by: 'Tested by',
+  validates: 'Validates',
+  contradicts: 'Contradicts',
+  applies_to: 'Applies to',
+  inspires: 'Inspired',
+  supersedes: 'Supersedes',
+  related_to: 'Related to',
+};
+
+export function nodeHref(nodeId: string) {
+  return `/knowledge/${nodeId}/`;
+}
+
+export function indexByNodeId(entries: KnowledgeEntry[]) {
+  return new Map(entries.map((entry) => [entry.data.nodeId, entry]));
+}
+
+export function explicitRelations(entry: KnowledgeEntry) {
+  const items = [...entry.data.relations];
+  if (entry.data.parent) {
+    items.unshift({
+      type: entry.data.parent.relation,
+      target: entry.data.parent.target,
+    });
+  }
+  return items;
+}
+
+export function backlinks(entry: KnowledgeEntry, allEntries: KnowledgeEntry[]) {
+  return allEntries.flatMap((candidate) =>
+    explicitRelations(candidate)
+      .filter((relation) => relation.target === entry.data.nodeId)
+      .map((relation) => ({ source: candidate, relation: relation.type })),
+  );
+}
+
+export function sameProject(entry: KnowledgeEntry, allEntries: KnowledgeEntry[]) {
+  if (!entry.data.project) return [];
+  return allEntries.filter(
+    (candidate) =>
+      candidate.data.nodeId !== entry.data.nodeId &&
+      candidate.data.project === entry.data.project,
+  );
+}
+
+export function knowledgePath(entry: KnowledgeEntry, allEntries: KnowledgeEntry[]) {
+  const byId = indexByNodeId(allEntries);
+  const path: KnowledgeEntry[] = [entry];
+  const visited = new Set([entry.data.nodeId]);
+  let current = entry;
+
+  while (current.data.parent) {
+    const parent = byId.get(current.data.parent.target);
+    if (!parent || visited.has(parent.data.nodeId)) break;
+    path.unshift(parent);
+    visited.add(parent.data.nodeId);
+    current = parent;
+  }
+
+  return path;
+}

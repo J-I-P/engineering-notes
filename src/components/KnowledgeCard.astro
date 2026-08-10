@@ -1,0 +1,33 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { nodeHref, STATUS_LABELS, TYPE_LABELS } from '../lib/knowledge';
+
+interface Props { entry: CollectionEntry<'knowledge'>; }
+const { entry } = Astro.props;
+const { data } = entry;
+---
+
+<a class="knowledge-card card card-hover" href={nodeHref(data.nodeId)}>
+  <div class="knowledge-card__top">
+    <span class={`pill pill--${data.type}`}><span class="pill-dot"></span>{TYPE_LABELS[data.type]}</span>
+    <span class="knowledge-card__status">{STATUS_LABELS[data.status]}</span>
+  </div>
+  <h3>{data.title}</h3>
+  <p>{data.description}</p>
+  <div class="knowledge-card__footer">
+    <div class="topics">
+      {data.topics.slice(0, 3).map((topic) => <span>#{topic}</span>)}
+    </div>
+    <span aria-hidden="true">↗</span>
+  </div>
+</a>
+
+<style>
+  .knowledge-card { display: block; min-height: 230px; padding: 19px; }
+  .knowledge-card__top, .knowledge-card__footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .knowledge-card__status { font-size: .73rem; color: var(--muted); }
+  h3 { font-size: 1.15rem; line-height: 1.3; letter-spacing: -.025em; margin: 20px 0 10px; }
+  p { color: var(--muted); line-height: 1.58; font-size: .91rem; margin: 0; }
+  .knowledge-card__footer { margin-top: 24px; color: #8ea0c2; font-size: .78rem; }
+  .topics { display: flex; gap: 8px; flex-wrap: wrap; }
+</style>

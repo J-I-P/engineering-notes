@@ -1,0 +1,41 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { explicitRelations, indexByNodeId, nodeHref, RELATION_LABELS } from '../lib/knowledge';
+
+interface Props {
+  entry: CollectionEntry<'knowledge'>;
+  allEntries: CollectionEntry<'knowledge'>[];
+}
+const { entry, allEntries } = Astro.props;
+const byId = indexByNodeId(allEntries);
+const relations = explicitRelations(entry)
+  .map((relation) => ({ ...relation, targetEntry: byId.get(relation.target) }))
+  .filter((relation) => relation.targetEntry);
+---
+
+<aside class="relations card">
+  <div class="eyebrow">Relations</div>
+  <h2>Connected knowledge</h2>
+  {relations.length === 0 ? (
+    <p class="muted">No explicit semantic relations yet.</p>
+  ) : (
+    <div class="relation-list">
+      {relations.map((relation) => (
+        <a href={nodeHref(relation.targetEntry!.data.nodeId)}>
+          <span>{RELATION_LABELS[relation.type]}</span>
+          <strong>{relation.targetEntry!.data.title}</strong>
+        </a>
+      ))}
+    </div>
+  )}
+</aside>
+
+<style>
+  .relations { padding: 20px; }
+  h2 { font-size: 1rem; margin: 5px 0 16px; }
+  .relation-list { display: grid; gap: 9px; }
+  .relation-list a { display: grid; gap: 5px; border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; background: rgba(255,255,255,.018); }
+  .relation-list a:hover { border-color: #3a4f7e; }
+  .relation-list span { color: var(--orange); font-size: .7rem; font-weight: 750; text-transform: uppercase; letter-spacing: .08em; }
+  .relation-list strong { font-size: .84rem; line-height: 1.35; }
+</style>

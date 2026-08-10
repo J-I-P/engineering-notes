@@ -1,0 +1,121 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'YPinLab — Engineering Knowledge',
+  description = 'Engineering knowledge, grown through building, research, and verification.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <style is:global>
+      :root {
+        color-scheme: dark;
+        --bg: #070d1c;
+        --surface: #0b132b;
+        --surface-2: #111c38;
+        --line: #223154;
+        --text: #f4f5f6;
+        --muted: #96a3bd;
+        --blue: #5f8cff;
+        --orange: #ff6b00;
+        --green: #58d68d;
+        --yellow: #f6c85f;
+        --radius: 18px;
+        --max: 1180px;
+      }
+
+      * { box-sizing: border-box; }
+      html { background: var(--bg); }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at 85% -10%, rgba(95, 140, 255, .13), transparent 30rem),
+          radial-gradient(circle at 10% 10%, rgba(255, 107, 0, .08), transparent 22rem),
+          var(--bg);
+        color: var(--text);
+      }
+
+      a { color: inherit; text-decoration: none; }
+      code, pre { font-family: "SFMono-Regular", Consolas, monospace; }
+      .container { width: min(calc(100% - 36px), var(--max)); margin-inline: auto; }
+      .eyebrow { color: var(--orange); letter-spacing: .12em; text-transform: uppercase; font-size: .76rem; font-weight: 800; }
+      .muted { color: var(--muted); }
+
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(16px);
+        background: rgba(7, 13, 28, .78);
+        border-bottom: 1px solid rgba(34, 49, 84, .7);
+      }
+      .site-header__inner { height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 850; letter-spacing: -.03em; }
+      .brand-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--orange); box-shadow: 0 0 22px rgba(255, 107, 0, .7); }
+      .nav { display: flex; gap: 8px; color: var(--muted); font-size: .92rem; }
+      .nav a { padding: 9px 12px; border-radius: 10px; }
+      .nav a:hover { color: var(--text); background: rgba(255,255,255,.04); }
+
+      .section { padding: 34px 0; }
+      .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 18px; }
+      .section-heading h2 { margin: 3px 0 0; font-size: clamp(1.4rem, 2vw, 2rem); letter-spacing: -.04em; }
+      .grid { display: grid; gap: 14px; }
+      .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: linear-gradient(180deg, rgba(17,28,56,.88), rgba(11,19,43,.9));
+        box-shadow: 0 20px 60px rgba(0,0,0,.13);
+      }
+      .card-hover { transition: transform .18s ease, border-color .18s ease, background .18s ease; }
+      .card-hover:hover { transform: translateY(-3px); border-color: #385083; background: #111d3b; }
+
+      .pill { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); border-radius: 999px; padding: 5px 9px; font-size: .74rem; color: var(--muted); background: rgba(255,255,255,.025); }
+      .pill-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); }
+      .pill--case .pill-dot { background: var(--orange); }
+      .pill--experiment .pill-dot { background: #b083ff; }
+      .pill--learning .pill-dot { background: var(--green); }
+      .pill--takeaway .pill-dot { background: var(--yellow); }
+      .pill--project .pill-dot { background: #68d8ff; }
+      .pill--question .pill-dot { background: #ff7e9e; }
+
+      .article-prose { color: #d8deeb; line-height: 1.82; font-size: 1.02rem; }
+      .article-prose h2, .article-prose h3 { color: var(--text); letter-spacing: -.025em; margin-top: 2em; }
+      .article-prose a { color: #8db0ff; text-decoration: underline; text-decoration-color: rgba(141,176,255,.35); text-underline-offset: 4px; }
+      .article-prose blockquote { margin-left: 0; border-left: 3px solid var(--orange); background: rgba(255,107,0,.06); padding: 12px 18px; border-radius: 0 12px 12px 0; }
+      .article-prose pre { overflow: auto; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: #060b17; }
+
+      @media (max-width: 860px) {
+        .grid-3 { grid-template-columns: 1fr; }
+        .nav { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a class="brand" href="/"><span>YPinLab</span><span class="brand-dot"></span></a>
+        <nav class="nav" aria-label="Primary">
+          <a href="/">Home</a>
+          <a href="/explore/">Explore</a>
+          <a href="/#knowledge">Knowledge</a>
+          <a href="/#open-questions">Open Questions</a>
+        </nav>
+      </div>
+    </header>
+    <slot />
+  </body>
+</html>
