@@ -32,8 +32,13 @@ Only generalized engineering observations that can stand on their own are promot
 
 ## Knowledge that emerged
 
-- an anonymized case about migrating from Vosk to `faster-whisper`;
-- research into silence-induced unsupported transcription;
-- a qualitative experiment evaluating VAD before ASR inference;
-- the learning that reliability depends on the surrounding pipeline;
-- and a measurement gap around quantifying hallucination reduction.
+```mermaid
+flowchart TD
+    accTitle: Knowledge that emerged from the completed work project
+    P[Completed work project] -. related to .-> C[Case: ASR engine migration]
+    C --> R[Research: Silence-induced hallucination]
+    R --> E[Experiment: VAD before ASR]
+    E --> L[Learning: ASR reliability is a pipeline problem]
+    L --> T[Takeaway: Model replacement is not system replacement]
+    E --> Q[Open question: How should hallucination be measured?]
+```

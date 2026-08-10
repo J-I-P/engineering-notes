@@ -1,0 +1,43 @@
+<style is:global>
+  .article-prose .mermaid {
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #060b17;
+    text-align: center;
+  }
+
+  .article-prose .mermaid svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-inline: auto;
+  }
+</style>
+
+<script>
+  const diagrams = document.querySelectorAll<HTMLElement>('.mermaid');
+
+  if (diagrams.length > 0) {
+    const { default: mermaid } = await import('mermaid');
+
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: 'strict',
+      theme: 'dark',
+      themeVariables: {
+        background: '#060b17',
+        primaryColor: '#111c38',
+        primaryTextColor: '#f4f5f6',
+        primaryBorderColor: '#5f8cff',
+        lineColor: '#96a3bd',
+        secondaryColor: '#0b132b',
+        tertiaryColor: '#111c38',
+      },
+    });
+
+    await mermaid.run({ nodes: diagrams, suppressErrors: false });
+  }
+</script>

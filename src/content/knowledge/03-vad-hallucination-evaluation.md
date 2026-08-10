@@ -33,16 +33,13 @@ After introducing VAD, this failure mode occurred less often in the samples I ma
 
 This observation also changed the system boundary I was reasoning about:
 
-```text
-Audio
-  ↓
-Voice Activity Detection
-  ↓
-Speech segments
-  ↓
-ASR inference
-  ↓
-Transcript
+```mermaid
+flowchart TD
+    accTitle: ASR pipeline with Voice Activity Detection
+    A[Audio] --> B[Voice Activity Detection]
+    B --> C[Speech segments]
+    C --> D[ASR inference]
+    D --> E[Transcript]
 ```
 
 The recognizer was still important, but input handling affected the reliability of the final transcript.

@@ -45,30 +45,24 @@ The migration exposed several questions beyond model selection:
 
 This shifted my view of the system from:
 
-```text
-Audio
-  ↓
-ASR Model
-  ↓
-Transcript
+```mermaid
+flowchart TD
+    accTitle: Narrow ASR system boundary
+    A[Audio] --> B[ASR Model]
+    B --> C[Transcript]
 ```
 
 to something closer to:
 
-```text
-Audio
-  ↓
-Pre-processing / segmentation
-  ↓
-Speech detection
-  ↓
-ASR inference
-  ↓
-Post-processing
-  ↓
-Quality validation
-  ↓
-Transcript
+```mermaid
+flowchart TD
+    accTitle: Expanded ASR reliability boundary
+    A[Audio] --> B[Pre-processing / segmentation]
+    B --> C[Speech detection]
+    C --> D[ASR inference]
+    D --> E[Post-processing]
+    E --> F[Quality validation]
+    F --> G[Transcript]
 ```
 
 The ASR model is important, but reliability depends on the surrounding pipeline as well.

@@ -39,20 +39,15 @@ Transcribe
 
 The actual pipeline has more interacting decisions:
 
-```text
-Audio
-  ↓
-Segmentation
-  ↓
-Speech / silence signals
-  ↓
-Model inference
-  ↓
-Decoding
-  ↓
-Context handling
-  ↓
-Transcript
+```mermaid
+flowchart TD
+    accTitle: ASR pipeline decisions that affect hallucination
+    A[Audio] --> B[Segmentation]
+    B --> C[Speech / silence signals]
+    C --> D[Model inference]
+    D --> E[Decoding]
+    E --> F[Context handling]
+    F --> G[Transcript]
 ```
 
 A Whisper-family model is still performing sequence generation under uncertainty. When the audio provides weak evidence, the final result can therefore depend heavily on surrounding factors such as:

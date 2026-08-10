@@ -21,18 +21,14 @@ A migration is not complete simply because the new model runs successfully or pr
 
 The relevant boundary is the behavior of the whole pipeline:
 
-```text
-Input
-  ↓
-Pre-processing
-  ↓
-Model
-  ↓
-Post-processing
-  ↓
-Validation
-  ↓
-Downstream behavior
+```mermaid
+flowchart TD
+    accTitle: Whole-system boundary for a model replacement
+    A[Input] --> B[Pre-processing]
+    B --> C[Model]
+    C --> D[Post-processing]
+    D --> E[Validation]
+    E --> F[Downstream behavior]
 ```
 
 If the new component violates assumptions made elsewhere in that pipeline, the system can become less reliable even when the model itself is technically stronger.

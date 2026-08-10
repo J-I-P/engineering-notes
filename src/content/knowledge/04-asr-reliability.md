@@ -21,14 +21,12 @@ relations:
 
 I originally thought an ASR migration could be treated mostly as an inference-layer replacement:
 
-```text
-Existing audio pipeline
-        ↓
-Replace ASR engine
-        ↓
-Compare output quality
-        ↓
-      Done
+```mermaid
+flowchart TD
+    accTitle: Previous understanding of an ASR migration
+    A[Existing audio pipeline] --> B[Replace ASR engine]
+    B --> C[Compare output quality]
+    C --> D[Done]
 ```
 
 Under that model, the main engineering question was whether the new recognizer produced better transcription than the previous one.
@@ -55,24 +53,17 @@ I now think about ASR reliability as a pipeline property.
 
 A simplified reliability boundary looks closer to:
 
-```text
-Audio
-  ↓
-Segmentation
-  ↓
-Speech / non-speech handling
-  ↓
-ASR inference
-  ↓
-Decoding
-  ↓
-Post-processing
-  ↓
-Quality validation
-  ↓
-Evaluation / observability
-  ↓
-Transcript
+```mermaid
+flowchart TD
+    accTitle: Current ASR reliability boundary
+    A[Audio] --> B[Segmentation]
+    B --> C[Speech / non-speech handling]
+    C --> D[ASR inference]
+    D --> E[Decoding]
+    E --> F[Post-processing]
+    F --> G[Quality validation]
+    G --> H[Evaluation / observability]
+    H --> I[Transcript]
 ```
 
 Each stage can influence whether the final result is trustworthy.
@@ -120,18 +111,14 @@ I would now ask:
 
 That question leads to a more useful migration process:
 
-```text
-Replace component
-      ↓
-Observe realistic behavior
-      ↓
-Identify new failure modes
-      ↓
-Evaluate them with evidence appropriate to the decision
-      ↓
-Add only the controls that are justified
-      ↓
-Re-evaluate the pipeline
+```mermaid
+flowchart TD
+    accTitle: Evidence-driven model migration process
+    A[Replace component] --> B[Observe realistic behavior]
+    B --> C[Identify new failure modes]
+    C --> D[Evaluate with evidence appropriate to the decision]
+    D --> E[Add only justified controls]
+    E --> F[Re-evaluate the pipeline]
 ```
 
 ## Current takeaway
