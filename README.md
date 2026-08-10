@@ -5,10 +5,10 @@ A developer blog prototype where Markdown entries are **knowledge nodes**, not i
 ## V1 proves
 
 - Markdown remains the source of truth.
-- Work-originated engineering cases can start a branch without a side project.
-- Semantic relations live in frontmatter and render into Knowledge Path / Relations / Backlinks.
-- A side project can be the **result** of research and learning rather than the root of every branch.
-- No database and no CMS backend are required for the first version.
+- Engineering knowledge can originate from real work, personal projects, curiosity, or open questions.
+- The site records how those experiences develop into research, experiments, learning, and reusable engineering judgment.
+- Semantic relations live in frontmatter and render into Knowledge Paths, Relations, and Backlinks.
+- No database or CMS backend is required for the first version.
 
 ## Content types
 
@@ -17,7 +17,7 @@ A developer blog prototype where Markdown entries are **knowledge nodes**, not i
 - `experiment` — how a hypothesis is tested
 - `learning` — current understanding
 - `takeaway` — reusable engineering judgment
-- `project` — a buildable output produced by a knowledge path
+- `project` — a building context where knowledge can originate or be applied
 - `question` — an unresolved branch
 
 ## Authoring rule
