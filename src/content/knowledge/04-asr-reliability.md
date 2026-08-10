@@ -4,13 +4,13 @@ nodeId: asr-reliability-is-pipeline-problem
 title: "ASR Reliability Is a Pipeline Problem"
 description: "The current engineering understanding: production reliability emerges from segmentation, inference, validation, and evaluation—not model selection alone."
 type: learning
-status: exploring
+status: learned
 publishedAt: 2026-08-10
 topics: [asr-reliability, asr, reliability, system-design]
 parent:
-  target: vad-benchmark
+  target: vad-hallucination-evaluation
   relation: derived_from
-evidence: [production_observation]
+evidence: [production_observation, local_experiment]
 relations:
   - type: inspires
     target: model-replacement-is-not-system-replacement
@@ -43,7 +43,9 @@ It was that realistic audio exposed failure modes that could not be explained by
 
 Silence-heavy or low-information segments could produce unsupported text. That led to questions about speech detection, segmentation, decoding, and how the system decides whether a generated transcript should be trusted.
 
-The [[whisper-hallucination]] research frames the same pattern, while the [[vad-benchmark]] experiment is designed to test one part of it:
+The [[whisper-hallucination]] research frames the same pattern. In the completed [[vad-hallucination-evaluation]] experiment, I introduced VAD and manually compared transcripts from actual audio before and after the change. Silence-induced unsupported transcription became less apparent in the samples I evaluated, so VAD was retained in the implementation.
+
+This was a qualitative engineering evaluation rather than a controlled quantitative benchmark. It supports a pipeline-level learning without establishing a universal effect size:
 
 > The quality of the final transcription depends on decisions made before, during, and after inference.
 
@@ -125,7 +127,7 @@ Observe realistic behavior
       ↓
 Identify new failure modes
       ↓
-Measure them
+Evaluate them with evidence appropriate to the decision
       ↓
 Add only the controls that are justified
       ↓
@@ -134,8 +136,10 @@ Re-evaluate the pipeline
 
 ## Current takeaway
 
-My current engineering understanding is:
+Based on the production observation and qualitative VAD experiment, my current engineering understanding is:
 
 > **ASR reliability is an emergent property of the pipeline, not a feature provided by the model alone.**
+
+This is an engineering learning from the evaluated system, not a claim that VAD produces the same improvement in every domain. A formal benchmark would still be required to quantify the effect and test its generality.
 
 That understanding leads to a broader takeaway captured in [[model-replacement-is-not-system-replacement]].

@@ -21,6 +21,7 @@ export const STATUS_LABELS: Record<KnowledgeEntry['data']['status'], string> = {
   seed: 'Seed',
   exploring: 'Exploring',
   experimenting: 'Experimenting',
+  completed: 'Completed',
   learned: 'Learned',
   applied: 'Applied',
   verified: 'Verified',

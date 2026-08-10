@@ -9,7 +9,7 @@ topics: [asr-reliability, engineering-judgment, reliability, ai-systems]
 parent:
   target: asr-reliability-is-pipeline-problem
   relation: derived_from
-evidence: [production_observation]
+evidence: [production_observation, local_experiment]
 relations: []
 ---
 

@@ -13,7 +13,7 @@ parent:
 evidence: [official_docs, source_code, external_reference]
 relations:
   - type: tested_by
-    target: vad-benchmark
+    target: vad-hallucination-evaluation
 
 ---
 
@@ -122,16 +122,16 @@ A hallucinated sentence can add content that never existed in the reference audi
 * How much does previous context affect low-information segments?
 * Which protections belong before inference versus after inference?
 
-## Next experiment
+## Resulting experiment
 
-The first practical experiment is to isolate one variable:
+The first practical experiment isolated one variable:
 
 > **Does removing non-speech regions with VAD reduce the hallucination observed on silence-heavy audio?**
 
-That experiment is tracked in [[vad-benchmark]].
+That qualitative engineering experiment is tracked in [[vad-hallucination-evaluation]]. VAD was retained after unsupported transcription became less apparent in the samples I manually evaluated, but the improvement was not quantified in a formal benchmark.
 
 For now, the working conclusion is intentionally limited:
 
 > **Hallucination should be investigated as a pipeline behavior, not assumed to be a model-only failure.**
 
-Further experiments are needed before turning that into a stronger engineering recommendation.
+Further quantitative evaluation is still needed before making a stronger claim about effect size or generality.

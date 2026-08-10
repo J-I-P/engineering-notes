@@ -16,6 +16,7 @@ const nodeStatus = z.enum([
   'seed',
   'exploring',
   'experimenting',
+  'completed',
   'learned',
   'applied',
   'verified',
