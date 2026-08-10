@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://J-I-P.dev/sitemap.xml
+Sitemap: https://j-i-p.github.io/engineering-notes/sitemap.xml

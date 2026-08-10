@@ -44,6 +44,10 @@ npm run build
 
 The site includes a complete `/knowledge/` archive, topic-specific static Explore pages, semantic relations, backlinks, canonical/social metadata, a sitemap, and a responsive navigation menu.
 
+## Deployment
+
+The production site is deployed to GitHub Pages at <https://j-i-p.github.io/engineering-notes/>. The Pages workflow builds the Astro project on pushes to `main` and `agent/knowledge-system-foundation`, and it can also be started manually from GitHub Actions.
+
 ## Prototype preview
 
 `prototype/index.html` is a dependency-free visual mock generated alongside the Astro source so the V1 UI can be reviewed immediately.

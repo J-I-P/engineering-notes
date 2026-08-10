@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../lib/urls';
 ---
 
 <BaseLayout
@@ -12,8 +13,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <h1>This knowledge path ends here.</h1>
     <p class="muted">The page may have moved, or the link may no longer exist.</p>
     <div class="actions">
-      <a class="primary" href="/">Return home</a>
-      <a href="/explore/">Explore knowledge</a>
+      <a class="primary" href={withBase('/')}>Return home</a>
+      <a href={withBase('/explore/')}>Explore knowledge</a>
     </div>
   </main>
 </BaseLayout>

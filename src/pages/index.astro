@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { compareByRecency, FEATURED_TOPICS, nodeHref, topicHref, TYPE_LABELS } from '../lib/knowledge';
+import { withBase } from '../lib/urls';
 
 const entries = (await getCollection('knowledge', ({ data }) => !data.draft))
   .sort(compareByRecency);
@@ -28,7 +29,7 @@ const activeTopics = FEATURED_TOPICS
         <h1>Build things.<br /><span>Trace what you learn.</span></h1>
         <p>Not a stream of isolated posts. A public map of engineering cases, research, experiments, evolving understanding, and the projects they inspire.</p>
         <div class="hero__actions">
-          <a class="primary" href="/explore/">Explore the graph →</a>
+          <a class="primary" href={withBase('/explore/')}>Explore the graph →</a>
           <a class="secondary" href="#knowledge">Read knowledge nodes</a>
         </div>
       </div>
@@ -51,7 +52,7 @@ const activeTopics = FEATURED_TOPICS
     <section class="section container" id="knowledge">
       <div class="section-heading">
         <div><div class="eyebrow">Recently formed</div><h2>Knowledge, not just posts</h2></div>
-        <a class="muted" href="/explore/">View graph →</a>
+        <a class="muted" href={withBase('/explore/')}>View graph →</a>
       </div>
       <div class="content-list">
         {recentlyFormed.map((entry) => (
@@ -77,7 +78,7 @@ const activeTopics = FEATURED_TOPICS
       <div class="section-heading"><div><div class="eyebrow">Not pretending to know</div><h2>Open questions</h2></div></div>
       <div class="question-list">
         {questions.map((entry, index) => (
-          <a href={`/knowledge/${entry.data.nodeId}/`}>
+          <a href={nodeHref(entry.data.nodeId)}>
             <span class="number">0{index + 1}</span>
             <div><strong>{entry.data.title}</strong><p>{entry.data.description}</p></div>
             <span>↗</span>

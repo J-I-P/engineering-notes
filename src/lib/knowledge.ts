@@ -1,5 +1,6 @@
 import type { CollectionEntry } from 'astro:content';
 import { FEATURED_TOPICS, topicBySlug } from '../data/topics';
+import { withBase } from './urls';
 
 export { FEATURED_TOPICS, TOPICS, topicBySlug } from '../data/topics';
 
@@ -38,11 +39,11 @@ export const RELATION_LABELS: Record<RelationType, string> = {
 };
 
 export function nodeHref(nodeId: string) {
-  return `/knowledge/${nodeId}/`;
+  return withBase(`/knowledge/${nodeId}/`);
 }
 
 export function topicHref(topic: string) {
-  return `/explore/${topic}/`;
+  return withBase(`/explore/${topic}/`);
 }
 
 export function compareByRecency(a: KnowledgeEntry, b: KnowledgeEntry) {

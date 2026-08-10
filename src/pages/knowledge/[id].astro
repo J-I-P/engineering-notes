@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import KnowledgePath from '../../components/KnowledgePath.astro';
 import RelationPanel from '../../components/RelationPanel.astro';
 import KnowledgeCard from '../../components/KnowledgeCard.astro';
-import { backlinks, compareByRecency, featuredTopicFor, knowledgePath, sameFeaturedTopic, STATUS_LABELS, topicHref, topicsFor, TYPE_LABELS } from '../../lib/knowledge';
+import { backlinks, compareByRecency, featuredTopicFor, knowledgePath, nodeHref, sameFeaturedTopic, STATUS_LABELS, topicHref, topicsFor, TYPE_LABELS } from '../../lib/knowledge';
 
 export async function getStaticPaths() {
   const entries = await getCollection('knowledge', ({ data }) => !data.draft);
@@ -43,7 +43,7 @@ const topics = topicsFor(entry);
           <aside class="card evidence"><div class="eyebrow">Evidence</div><h2>Confidence anchors</h2>{entry.data.evidence.map((item) => <div class="evidence-item"><span>✓</span>{item.replaceAll('_', ' ')}</div>)}</aside>
         )}
         {incoming.length > 0 && (
-          <aside class="card backlinks"><div class="eyebrow">Backlinks</div><h2>Referenced by</h2>{incoming.map(({ source, relation }) => <a href={`/knowledge/${source.data.nodeId}/`}><strong>{source.data.title}</strong><span>{relation.replaceAll('_', ' ')}</span></a>)}</aside>
+          <aside class="card backlinks"><div class="eyebrow">Backlinks</div><h2>Referenced by</h2>{incoming.map(({ source, relation }) => <a href={nodeHref(source.data.nodeId)}><strong>{source.data.title}</strong><span>{relation.replaceAll('_', ' ')}</span></a>)}</aside>
         )}
       </div>
     </div>

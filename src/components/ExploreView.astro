@@ -2,6 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import type { TopicMetadata } from '../data/topics';
 import { explicitRelations, nodeHref, TOPICS, topicHref, TYPE_LABELS } from '../lib/knowledge';
+import { withBase } from '../lib/urls';
 
 interface Props {
   entries: CollectionEntry<'knowledge'>[];
@@ -29,7 +30,7 @@ const columns = ['case', 'research', 'experiment', 'learning', 'takeaway', 'proj
   </header>
 
   <nav class="topic-filters" aria-label="Filter by topic">
-    <a href="/explore/" class:list={{ active: !topic }}>All topics</a>
+    <a href={withBase('/explore/')} class:list={{ active: !topic }}>All topics</a>
     {TOPICS.map((item) => <a href={topicHref(item.slug)} class:list={{ active: topic?.slug === item.slug }}>{item.title}</a>)}
   </nav>
 

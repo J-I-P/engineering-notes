@@ -8,11 +8,13 @@ interface Props {
   noindex?: boolean;
 }
 
+import { withBase } from '../lib/urls';
+
 const {
   title = 'J-I-P — Engineering Knowledge',
   description = 'Engineering knowledge, grown through building, research, and verification.',
   canonicalURL,
-  ogImage = '/favicon.svg',
+  ogImage = withBase('/favicon.svg'),
   ogType = 'website',
   noindex = false,
 } = Astro.props;
@@ -31,7 +33,7 @@ const socialImage = new URL(ogImage, Astro.site ?? Astro.url);
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
     <meta property="og:site_name" content="J-I-P" />
     <meta property="og:type" content={ogType} />
     <meta property="og:title" content={title} />
@@ -174,20 +176,20 @@ const socialImage = new URL(ogImage, Astro.site ?? Astro.url);
     <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
       <div class="container site-header__inner">
-        <a class="brand" href="/"><span>J-I-P</span><span class="brand-dot"></span></a>
+        <a class="brand" href={withBase('/')}><span>J-I-P</span><span class="brand-dot"></span></a>
         <nav class="nav" aria-label="Primary">
-          <a href="/">Home</a>
-          <a href="/explore/">Explore</a>
-          <a href="/knowledge/">Knowledge</a>
-          <a href="/#open-questions">Open Questions</a>
+          <a href={withBase('/')}>Home</a>
+          <a href={withBase('/explore/')}>Explore</a>
+          <a href={withBase('/knowledge/')}>Knowledge</a>
+          <a href={withBase('/#open-questions')}>Open Questions</a>
         </nav>
         <details class="mobile-nav">
           <summary>Menu</summary>
           <nav class="mobile-nav__links" aria-label="Primary mobile">
-            <a href="/">Home</a>
-            <a href="/explore/">Explore</a>
-            <a href="/knowledge/">Knowledge</a>
-            <a href="/#open-questions">Open Questions</a>
+            <a href={withBase('/')}>Home</a>
+            <a href={withBase('/explore/')}>Explore</a>
+            <a href={withBase('/knowledge/')}>Knowledge</a>
+            <a href={withBase('/#open-questions')}>Open Questions</a>
           </nav>
         </details>
       </div>
