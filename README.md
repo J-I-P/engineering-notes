@@ -1,4 +1,4 @@
-# YPinLab Engineering Knowledge — V1 Prototype
+# J-I-P Engineering Knowledge — V1 Prototype
 
 A developer blog prototype where Markdown entries are **knowledge nodes**, not isolated posts.
 
@@ -17,12 +17,12 @@ A developer blog prototype where Markdown entries are **knowledge nodes**, not i
 - `experiment` — how a hypothesis is tested
 - `learning` — current understanding
 - `takeaway` — reusable engineering judgment
-- `project` — a buildable output or project root
+- `project` — a buildable output produced by a knowledge path
 - `question` — an unresolved branch
 
 ## Authoring rule
 
-Only one primary relationship (`parent`) is encouraged when creating a new node. Additional semantic `relations` are optional and can later be suggested by AI.
+Only one primary relationship (`parent`) is encouraged when creating a new node. Additional semantic `relations` are optional and can later be suggested by AI. Topics are browsing facets rather than hierarchy; every topic slug must be registered in `src/data/topics.ts`.
 
 ## Run
 
@@ -33,16 +33,28 @@ npm install
 npm run dev
 ```
 
-The current execution environment used to create this prototype did not expose Astro through its npm mirror, so the Astro dependency could not be installed here. The source follows the current Astro 6 Content Layer API (`src/content.config.ts`, `glob()` loader, `getCollection()`, `render()`, `getStaticPaths()`).
+Before publishing content, run the same quality gate used by CI:
+
+```bash
+npm run check
+npm run validate
+npm test
+npm run build
+```
+
+The site includes a complete `/knowledge/` archive, topic-specific static Explore pages, semantic relations, backlinks, canonical/social metadata, a sitemap, and a responsive navigation menu.
 
 ## Prototype preview
 
 `prototype/index.html` is a dependency-free visual mock generated alongside the Astro source so the V1 UI can be reviewed immediately.
 
-## Next iteration
+## Content integrity
 
-1. Add a `promote-note` command that transforms private Obsidian notes into public draft nodes.
-2. Add content validation for broken `target` IDs and cycles in `parent` paths.
-3. Parse `[[wiki-links]]` as weak/automatic mentions.
-4. Let AI suggest secondary semantic relations in PRs; human approves strong relations.
-5. Replace the Explore lane mock with React Flow only when the graph has enough nodes to justify it.
+`npm run validate` rejects duplicate node IDs, unknown topics, broken relation targets, duplicate edges, and cycles in primary parent paths. GitHub Actions runs install, type checking, validation, tests, and the production build on every push and pull request.
+
+## Later iterations
+
+1. Add a `promote-note` command that transforms private Obsidian notes into public draft nodes and sanitizes work-originated material.
+2. Parse `[[wiki-links]]` as weak/automatic mentions.
+3. Let AI suggest secondary semantic relations in PRs; human approves strong relations.
+4. Replace the Explore lanes with a full graph visualization only when the corpus is large enough to justify it.

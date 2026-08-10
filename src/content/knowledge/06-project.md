@@ -5,14 +5,14 @@ description: "A possible side project derived from a real engineering case: insp
 type: project
 status: seed
 publishedAt: 2026-08-10
-topics: [side-project, asr, evaluation]
+topics: [asr-reliability, side-project, asr, evaluation]
 origin:
   kind: side_project
   disclosure: public
 evidence: []
-relations:
-  - type: derived_from
-    target: model-replacement-is-not-system-replacement
+parent:
+  target: model-replacement-is-not-system-replacement
+  relation: derived_from
 ---
 
 ## Why this project exists

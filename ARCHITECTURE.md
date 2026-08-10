@@ -22,12 +22,14 @@ The repositories share an ontology, not files.
 
 Relations are deliberately layered:
 
-1. Structural — `type`, `project`, `topics`; inferred automatically.
+1. Facets — `type` and registered `topics`; used for browsing, not hierarchy.
 2. Primary — one `parent`; author supplies this when the origin is clear.
 3. Mentions — future `[[wiki-links]]`; inferred automatically.
 4. Semantic — `validates`, `contradicts`, `supersedes`, etc.; human-reviewed.
 
 The author should never maintain a complete graph manually.
+
+Topics are cataloged in `src/data/topics.ts`. A node may belong to multiple topics, while its optional `parent` expresses only the primary path by which the knowledge formed. A `project` is a node type and may be an output of any path; it is not required as a root or grouping container.
 
 ## Public safety for work-originated knowledge
 

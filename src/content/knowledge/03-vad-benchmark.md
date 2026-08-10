@@ -5,8 +5,7 @@ description: "An experiment branch for measuring whether explicit speech segment
 type: experiment
 status: experimenting
 publishedAt: 2026-08-10
-topics: [vad, whisper, evaluation]
-project: asr-reliability-branch
+topics: [asr-reliability, vad, whisper, evaluation]
 parent:
   target: whisper-hallucination
   relation: investigates

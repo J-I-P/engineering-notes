@@ -1,17 +1,23 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import KnowledgeCard from '../components/KnowledgeCard.astro';
+import { compareByRecency, FEATURED_TOPICS, nodeHref, topicHref, TYPE_LABELS } from '../lib/knowledge';
 
 const entries = (await getCollection('knowledge', ({ data }) => !data.draft))
-  .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
+  .sort(compareByRecency);
 
 const questions = entries.filter((entry) => entry.data.type === 'question');
 const cases = entries.filter((entry) => entry.data.type === 'case');
-const knowledge = entries.filter((entry) => !['question', 'project'].includes(entry.data.type)).slice(0, 6);
-const topics = new Map<string, number>();
-for (const entry of entries) for (const topic of entry.data.topics) topics.set(topic, (topics.get(topic) ?? 0) + 1);
-const topTopics = [...topics.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4);
+const recentlyFormed = entries
+  .filter((entry) => !['case', 'question', 'project'].includes(entry.data.type))
+  .slice(0, 4);
+
+const activeTopics = FEATURED_TOPICS
+  .map((topic) => ({
+    ...topic,
+    count: entries.filter((entry) => entry.data.topics.includes(topic.slug)).length,
+  }))
+  .filter((topic) => topic.count > 0);
 ---
 
 <BaseLayout>
@@ -26,28 +32,18 @@ const topTopics = [...topics.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4);
           <a class="secondary" href="#knowledge">Read knowledge nodes</a>
         </div>
       </div>
-      <div class="hero__map card" aria-label="Knowledge lifecycle preview">
-        <div class="map-label">LIVE KNOWLEDGE PATH</div>
-        <div class="map-chain">
-          <div class="map-node case"><small>CASE</small><strong>ASR migration</strong></div>
-          <span>→</span>
-          <div class="map-node research"><small>RESEARCH</small><strong>Hallucination</strong></div>
-          <span>→</span>
-          <div class="map-node experiment"><small>EXPERIMENT</small><strong>VAD benchmark</strong></div>
-          <span>→</span>
-          <div class="map-node learning"><small>LEARNING</small><strong>Pipeline reliability</strong></div>
-        </div>
-        <div class="map-footer"><span class="pulse"></span> Knowledge grows from real engineering work</div>
-      </div>
     </section>
 
     <section class="section container">
       <div class="section-heading">
         <div><div class="eyebrow">Currently exploring</div><h2>Active knowledge areas</h2></div>
       </div>
-      <div class="topic-grid">
-        {topTopics.map(([topic, count]) => (
-          <div class="topic card"><span>#{topic}</span><strong>{count}</strong><small>connected nodes</small></div>
+      <div class="branch-grid">
+        {activeTopics.map((topic) => (
+          <a class="branch card card-hover" href={topicHref(topic.slug)}>
+            <strong>{topic.title}</strong>
+            <span>{topic.count} {topic.count === 1 ? 'node' : 'nodes'}</span>
+          </a>
         ))}
       </div>
     </section>
@@ -57,19 +53,24 @@ const topTopics = [...topics.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4);
         <div><div class="eyebrow">Recently formed</div><h2>Knowledge, not just posts</h2></div>
         <a class="muted" href="/explore/">View graph →</a>
       </div>
-      <div class="grid grid-3">
-        {knowledge.map((entry) => <KnowledgeCard entry={entry} />)}
+      <div class="content-list">
+        {recentlyFormed.map((entry) => (
+          <a href={nodeHref(entry.data.nodeId)}>
+            <span class={`content-type content-type--${entry.data.type}`}>{TYPE_LABELS[entry.data.type]}</span>
+            <strong>{entry.data.title}</strong>
+            <span aria-hidden="true">↗</span>
+          </a>
+        ))}
       </div>
     </section>
 
     <section class="section container cases-section">
       <div class="section-heading"><div><div class="eyebrow">Real-world origins</div><h2>Engineering cases</h2></div></div>
-      {cases.map((entry) => (
-        <a class="case-feature card card-hover" href={`/knowledge/${entry.data.nodeId}/`}>
-          <div><span class="pill pill--case"><span class="pill-dot"></span>Engineering Case</span><h3>{entry.data.title}</h3><p>{entry.data.description}</p></div>
-          <div class="case-feature__meta"><span>Origin</span><strong>Real-world work · anonymized</strong><span>Branches</span><strong>Research → Experiment → Learning</strong></div>
-        </a>
-      ))}
+      <div class="content-list">
+        {cases.map((entry) => (
+          <a href={nodeHref(entry.data.nodeId)}><strong>{entry.data.title}</strong><span aria-hidden="true">↗</span></a>
+        ))}
+      </div>
     </section>
 
     <section class="section container" id="open-questions">
@@ -87,7 +88,7 @@ const topTopics = [...topics.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4);
   </main>
 
   <style>
-    .hero { min-height: 600px; padding-top: 88px; padding-bottom: 70px; display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; gap: 64px; }
+    .hero { min-height: 520px; padding-top: 88px; padding-bottom: 70px; display: flex; align-items: center; }
     .hero h1 { margin: 12px 0 20px; font-size: clamp(3.1rem, 6vw, 5.9rem); line-height: .93; letter-spacing: -.072em; }
     .hero h1 span { color: #98a7c5; }
     .hero__copy > p { max-width: 670px; font-size: 1.05rem; color: var(--muted); line-height: 1.7; }
@@ -95,35 +96,24 @@ const topTopics = [...topics.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4);
     .primary, .secondary { border-radius: 12px; padding: 11px 15px; font-size: .88rem; font-weight: 750; }
     .primary { background: var(--orange); color: #fff; }
     .secondary { border: 1px solid var(--line); color: #c9d2e5; }
-    .hero__map { padding: 22px; overflow: hidden; }
-    .map-label { color: #5e7199; font-size: .68rem; letter-spacing: .13em; font-weight: 800; }
-    .map-chain { display: grid; gap: 9px; margin: 22px 0; }
-    .map-chain > span { color: #4b5e87; margin-left: 26px; transform: rotate(90deg); width: min-content; }
-    .map-node { border: 1px solid var(--line); border-radius: 13px; padding: 13px 15px; display: flex; align-items: center; gap: 14px; background: #081127; }
-    .map-node small { min-width: 82px; color: var(--muted); font-size: .65rem; letter-spacing: .08em; }
-    .map-node.case { border-left: 3px solid var(--orange); }
-    .map-node.research { border-left: 3px solid var(--blue); }
-    .map-node.experiment { border-left: 3px solid #b083ff; }
-    .map-node.learning { border-left: 3px solid var(--green); }
-    .map-footer { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .78rem; }
-    .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 14px rgba(88,214,141,.7); }
-    .topic-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-    .topic { padding: 18px; display: grid; gap: 7px; }
-    .topic span { color: #9db4e8; font-size: .78rem; }
-    .topic strong { font-size: 2rem; letter-spacing: -.05em; }
-    .topic small { color: var(--muted); }
-    .case-feature { padding: 25px; display: grid; grid-template-columns: 1fr 300px; gap: 50px; }
-    .case-feature h3 { font-size: 1.55rem; margin: 16px 0 8px; letter-spacing: -.04em; }
-    .case-feature p { color: var(--muted); line-height: 1.6; max-width: 720px; }
-    .case-feature__meta { border-left: 1px solid var(--line); padding-left: 24px; display: grid; align-content: center; grid-template-columns: 1fr; gap: 5px; }
-    .case-feature__meta span { color: var(--muted); font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; margin-top: 7px; }
-    .case-feature__meta strong { font-size: .86rem; }
+    .branch-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .branch { padding: 20px; display: grid; gap: 10px; }
+    .branch strong { font-size: 1rem; }
+    .branch span { color: var(--muted); font-size: .8rem; }
+    .content-list { border-top: 1px solid var(--line); }
+    .content-list a { display: grid; grid-template-columns: 145px 1fr auto; gap: 18px; align-items: center; padding: 20px 8px; border-bottom: 1px solid var(--line); }
+    .content-list a:hover strong { color: #a9c0ff; }
+    .content-type { color: var(--blue); font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .content-type--experiment { color: #b083ff; }
+    .content-type--learning { color: var(--green); }
+    .content-type--takeaway { color: var(--orange); }
     .question-list { border-top: 1px solid var(--line); }
     .question-list a { display: grid; grid-template-columns: 55px 1fr auto; gap: 18px; align-items: center; padding: 19px 8px; border-bottom: 1px solid var(--line); }
     .question-list a:hover strong { color: #a9c0ff; }
     .question-list .number { color: var(--orange); font-family: monospace; }
     .question-list strong { font-size: 1rem; }
     .question-list p { margin: 5px 0 0; color: var(--muted); font-size: .85rem; }
-    @media (max-width: 860px) { .hero { grid-template-columns: 1fr; padding-top: 55px; } .topic-grid { grid-template-columns: repeat(2, 1fr); } .case-feature { grid-template-columns: 1fr; }.case-feature__meta { border-left: 0; border-top: 1px solid var(--line); padding: 18px 0 0; } }
+    @media (max-width: 860px) { .hero { padding-top: 55px; } .branch-grid { grid-template-columns: repeat(2, 1fr); } .content-list a { grid-template-columns: 110px 1fr auto; } }
+    @media (max-width: 520px) { .branch-grid { grid-template-columns: 1fr; } .content-list a { grid-template-columns: 1fr auto; } .content-type { grid-column: 1 / -1; } }
   </style>
 </BaseLayout>

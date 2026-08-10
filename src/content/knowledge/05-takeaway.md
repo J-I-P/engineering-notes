@@ -5,8 +5,7 @@ description: "A reusable engineering principle extracted from the ASR migration 
 type: takeaway
 status: verified
 publishedAt: 2026-08-10
-topics: [engineering-judgment, reliability, ai-systems]
-project: asr-reliability-branch
+topics: [asr-reliability, engineering-judgment, reliability, ai-systems]
 parent:
   target: asr-reliability-is-pipeline-problem
   relation: derived_from

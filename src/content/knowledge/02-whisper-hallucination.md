@@ -5,8 +5,7 @@ description: "Researching why Whisper-family models can emit confident-looking t
 type: research
 status: exploring
 publishedAt: 2026-08-10
-topics: [whisper, asr, hallucination]
-project: asr-reliability-branch
+topics: [asr-reliability, whisper, asr, hallucination]
 parent:
   target: asr-engine-migration
   relation: derived_from

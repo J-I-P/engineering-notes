@@ -5,8 +5,7 @@ description: "WER alone may miss fluent false text during silence. What metric s
 type: question
 status: seed
 publishedAt: 2026-08-10
-topics: [asr, evaluation, metrics]
-project: asr-reliability-branch
+topics: [asr-reliability, asr, evaluation, metrics]
 parent:
   target: whisper-hallucination
   relation: derived_from

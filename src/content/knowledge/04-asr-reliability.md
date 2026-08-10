@@ -5,8 +5,7 @@ description: "The current engineering understanding: production reliability emer
 type: learning
 status: learned
 publishedAt: 2026-08-10
-topics: [asr, reliability, system-design]
-project: asr-reliability-branch
+topics: [asr-reliability, asr, reliability, system-design]
 parent:
   target: vad-benchmark
   relation: validates

@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Page not found — J-I-P"
+  description="The requested page could not be found."
+  noindex={true}
+>
+  <main class="not-found">
+    <p class="eyebrow">404 · Page not found</p>
+    <h1>This knowledge path ends here.</h1>
+    <p class="muted">The page may have moved, or the link may no longer exist.</p>
+    <div class="actions">
+      <a class="primary" href="/">Return home</a>
+      <a href="/explore/">Explore knowledge</a>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .not-found {
+    width: min(calc(100% - 36px), 720px);
+    margin-inline: auto;
+    padding: clamp(80px, 14vw, 160px) 0;
+  }
+  h1 { margin: 12px 0; font-size: clamp(2.5rem, 8vw, 5rem); line-height: .98; letter-spacing: -.06em; }
+  .muted { max-width: 540px; font-size: 1.08rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+  .actions a { padding: 11px 15px; border: 1px solid var(--line); border-radius: 10px; font-weight: 750; }
+  .actions a:hover { border-color: #385083; background: var(--surface-2); }
+  .actions .primary { border-color: var(--orange); background: var(--orange); color: #111; }
+</style>

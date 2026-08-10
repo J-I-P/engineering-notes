@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import KnowledgePath from '../../components/KnowledgePath.astro';
 import RelationPanel from '../../components/RelationPanel.astro';
 import KnowledgeCard from '../../components/KnowledgeCard.astro';
-import { backlinks, knowledgePath, sameProject, STATUS_LABELS, TYPE_LABELS } from '../../lib/knowledge';
+import { backlinks, compareByRecency, featuredTopicFor, knowledgePath, sameFeaturedTopic, STATUS_LABELS, topicHref, topicsFor, TYPE_LABELS } from '../../lib/knowledge';
 
 export async function getStaticPaths() {
   const entries = await getCollection('knowledge', ({ data }) => !data.draft);
@@ -15,10 +15,12 @@ const { entry, allEntries } = Astro.props;
 const { Content } = await render(entry);
 const path = knowledgePath(entry, allEntries);
 const incoming = backlinks(entry, allEntries);
-const projectNodes = sameProject(entry, allEntries).slice(0, 3);
+const featuredTopic = featuredTopicFor(entry);
+const relatedNodes = sameFeaturedTopic(entry, allEntries).sort(compareByRecency).slice(0, 3);
+const topics = topicsFor(entry);
 ---
 
-<BaseLayout title={`${entry.data.title} — YPinLab`} description={entry.data.description}>
+<BaseLayout title={`${entry.data.title} — J-I-P`} description={entry.data.description} ogType="article">
   <main class="container article-shell">
     <header class="article-hero">
       <div class="article-hero__meta">
@@ -28,7 +30,7 @@ const projectNodes = sameProject(entry, allEntries).slice(0, 3);
       </div>
       <h1>{entry.data.title}</h1>
       <p>{entry.data.description}</p>
-      <div class="topic-row">{entry.data.topics.map((topic) => <span>#{topic}</span>)}</div>
+      <div class="topic-row">{topics.map((topic) => <a href={topicHref(topic.slug)}>#{topic.title}</a>)}</div>
     </header>
 
     <KnowledgePath path={path} currentId={entry.data.nodeId} />
@@ -46,10 +48,10 @@ const projectNodes = sameProject(entry, allEntries).slice(0, 3);
       </div>
     </div>
 
-    {projectNodes.length > 0 && (
+    {featuredTopic && relatedNodes.length > 0 && (
       <section class="section">
-        <div class="section-heading"><div><div class="eyebrow">Same context</div><h2>More from this knowledge branch</h2></div></div>
-        <div class="grid grid-3">{projectNodes.map((node) => <KnowledgeCard entry={node} />)}</div>
+        <div class="section-heading"><div><div class="eyebrow">Same topic</div><h2>More in {featuredTopic.title}</h2></div><a class="muted" href={topicHref(featuredTopic.slug)}>View topic →</a></div>
+        <div class="grid grid-3">{relatedNodes.map((node) => <KnowledgeCard entry={node} />)}</div>
       </section>
     )}
   </main>

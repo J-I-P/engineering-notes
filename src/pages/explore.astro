@@ -1,46 +1,11 @@
 ---
 import { getCollection } from 'astro:content';
+import ExploreView from '../components/ExploreView.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { explicitRelations, nodeHref, TYPE_LABELS } from '../lib/knowledge';
 
 const entries = await getCollection('knowledge', ({ data }) => !data.draft);
-const edges = entries.flatMap((entry) => explicitRelations(entry).map((relation) => ({ source: entry.data.nodeId, ...relation })));
-const columns = ['case', 'research', 'experiment', 'learning', 'takeaway', 'project', 'question'] as const;
 ---
 
-<BaseLayout title="Explore — YPinLab">
-  <main class="container explore">
-    <header><div class="eyebrow">Explore</div><h1>Engineering knowledge graph</h1><p>Semantic relationships are explicit; project/topic proximity can be inferred. The graph is an exploration surface, not the authoring source.</p></header>
-    <div class="graph card">
-      <div class="graph__legend">{columns.map((type) => <span class={`pill pill--${type}`}><span class="pill-dot"></span>{TYPE_LABELS[type]}</span>)}</div>
-      <div class="lanes">
-        {columns.map((type) => {
-          const nodes = entries.filter((entry) => entry.data.type === type);
-          if (!nodes.length) return null;
-          return <section class="lane"><div class="lane__title">{TYPE_LABELS[type]}</div>{nodes.map((entry) => <a href={nodeHref(entry.data.nodeId)}><strong>{entry.data.title}</strong><small>{edges.filter((edge) => edge.source === entry.data.nodeId || edge.target === entry.data.nodeId).length} connections</small></a>)}</section>;
-        })}
-      </div>
-    </div>
-    <section class="edge-table"><div class="eyebrow">Semantic edges</div><h2>Reasoning relationships</h2>{edges.map((edge) => <div><code>{edge.source}</code><span>{edge.type.replaceAll('_', ' ')}</span><code>{edge.target}</code></div>)}</section>
-  </main>
-  <style>
-    .explore { padding: 68px 0 90px; }
-    header { max-width: 720px; margin-bottom: 35px; }
-    h1 { font-size: clamp(2.8rem, 5vw, 5rem); letter-spacing: -.06em; margin: 10px 0 15px; }
-    header p { color: var(--muted); line-height: 1.65; }
-    .graph { padding: 18px; overflow-x: auto; }
-    .graph__legend { display: flex; gap: 7px; flex-wrap: wrap; padding: 4px 4px 18px; border-bottom: 1px solid var(--line); }
-    .lanes { display: grid; grid-template-columns: repeat(7, minmax(175px, 1fr)); gap: 10px; min-width: 1120px; padding-top: 16px; }
-    .lane { display: grid; align-content: start; gap: 9px; }
-    .lane__title { color: var(--muted); font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; padding: 0 4px 4px; }
-    .lane a { border: 1px solid var(--line); border-radius: 13px; background: #091127; padding: 12px; display: grid; gap: 8px; }
-    .lane a:hover { border-color: #425985; }
-    .lane strong { font-size: .81rem; line-height: 1.3; }
-    .lane small { color: var(--muted); }
-    .edge-table { margin-top: 48px; }
-    .edge-table h2 { margin: 6px 0 15px; }
-    .edge-table > div:not(.eyebrow) { display: grid; grid-template-columns: 1fr 170px 1fr; gap: 14px; align-items: center; padding: 11px 0; border-top: 1px solid var(--line); }
-    .edge-table span { color: var(--orange); font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; text-align: center; }
-    .edge-table code { color: #b8c7e8; font-size: .78rem; }
-  </style>
+<BaseLayout title="Explore — J-I-P" description="Explore engineering knowledge by type, topic, and semantic relationship.">
+  <ExploreView entries={entries} />
 </BaseLayout>

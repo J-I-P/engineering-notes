@@ -3,10 +3,9 @@ nodeId: asr-engine-migration
 title: "When an ASR Migration Exposed a Reliability Problem"
 description: "A real-world migration from a legacy speech recognizer to faster-whisper revealed that model replacement alone was not enough for reliable transcription."
 type: case
-status: explored
+status: exploring
 publishedAt: 2026-08-10
-topics: [asr, whisper, reliability]
-project: asr-reliability-branch
+topics: [asr-reliability, asr, whisper, reliability]
 origin:
   kind: work
   disclosure: anonymized
