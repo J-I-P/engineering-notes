@@ -7,16 +7,18 @@ import { localizedHref } from '../../lib/urls';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 export async function getStaticPaths() {
-  const entries = entriesForLocale(await getCollection('knowledge', ({ data }) => !data.draft), 'en');
+  const allEntries = await getCollection('knowledge', ({ data }) => !data.draft);
+  const entries = entriesForLocale(allEntries, 'en');
+  const translatedTopics = new Set(entriesForLocale(allEntries, 'zh-tw').flatMap((entry) => entry.data.topics));
   const usedTopics = new Set(entries.flatMap((entry) => entry.data.topics));
   return TOPICS
     .filter((topic) => usedTopics.has(topic.slug))
-    .map((topic) => ({ params: { topic: topic.slug }, props: { topic, entries } }));
+    .map((topic) => ({ params: { topic: topic.slug }, props: { topic, entries, hasTranslation: translatedTopics.has(topic.slug) } }));
 }
 
-const { topic, entries } = Astro.props;
+const { topic, entries, hasTranslation } = Astro.props;
 ---
 
-<BaseLayout title={`${topic.title} — Explore — J-I-P`} description={topic.description} locale="en" alternateURL={localizedHref(`/explore/${topic.slug}/`, 'zh-tw')}>
+<BaseLayout title={`${topic.title} — Explore — J-I-P`} description={topic.description} locale="en" alternateURL={hasTranslation ? localizedHref(`/explore/${topic.slug}/`, 'zh-tw') : undefined}>
   <ExploreView entries={entries} topic={topic} locale="en" />
 </BaseLayout>

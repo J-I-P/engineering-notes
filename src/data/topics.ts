@@ -22,6 +22,13 @@ export const TOPICS = [
     order: 2,
   },
   {
+    slug: 'event-driven-reliability',
+    title: 'Event-Driven Reliability',
+    description: 'Reliability boundaries across CDC, event ordering, replay, fan-out, and asynchronous delivery.',
+    featured: true,
+    order: 3,
+  },
+  {
     slug: 'asr',
     title: 'ASR',
     description: 'Automatic speech recognition models and systems.',
