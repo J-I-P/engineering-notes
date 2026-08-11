@@ -11,6 +11,23 @@ interface Props {
 const { path, currentId, locale = 'en' } = Astro.props;
 const messages = t(locale);
 const labels = labelsFor(locale);
+const byId = new Map(path.map((node) => [node.data.nodeId, node]));
+const depthById = new Map<string, number>();
+
+function depthOf(node: CollectionEntry<'knowledge'>): number {
+  const cached = depthById.get(node.data.nodeId);
+  if (cached !== undefined) return cached;
+  const parent = node.data.parent ? byId.get(node.data.parent.target) : undefined;
+  const depth = parent ? depthOf(parent) + 1 : 0;
+  depthById.set(node.data.nodeId, depth);
+  return depth;
+}
+
+const levels = path.reduce<CollectionEntry<'knowledge'>[][]>((groups, node) => {
+  const depth = depthOf(node);
+  (groups[depth] ??= []).push(node);
+  return groups;
+}, []);
 ---
 
 <div class="path card">
@@ -21,14 +38,22 @@ const labels = labelsFor(locale);
     </div>
     <span class="muted">{path.length} {path.length === 1 ? messages.article.node : messages.article.nodes}</span>
   </div>
-  <div class="path__nodes">
-    {path.map((node, index) => (
+  <div class="path__levels">
+    {levels.map((level, index) => (
       <>
-        <a class:list={['path-node', { current: node.data.nodeId === currentId }]} href={nodeHref(node.data.nodeId, locale)}>
-          <span class={`pill pill--${node.data.type}`}><span class="pill-dot"></span>{labels.type[node.data.type]}</span>
-          <strong>{node.data.title}</strong>
-        </a>
-        {index < path.length - 1 && <span class="arrow">→</span>}
+        <div class="path-level">
+          {level.map((node) => {
+            const parent = node.data.parent ? byId.get(node.data.parent.target) : undefined;
+            return (
+              <a class:list={['path-node', { current: node.data.nodeId === currentId }]} href={nodeHref(node.data.nodeId, locale)}>
+                <span class={`pill pill--${node.data.type}`}><span class="pill-dot"></span>{labels.type[node.data.type]}</span>
+                <strong>{node.data.title}</strong>
+                {parent && node.data.parent && <small>{labels.relation[node.data.parent.relation]} · {parent.data.title}</small>}
+              </a>
+            );
+          })}
+        </div>
+        {index < levels.length - 1 && <span class="arrow" aria-hidden="true">→</span>}
       </>
     ))}
   </div>
@@ -38,9 +63,17 @@ const labels = labelsFor(locale);
   .path { padding: 22px; }
   .path__heading { display: flex; justify-content: space-between; align-items: end; gap: 20px; }
   .path__heading h2 { font-size: 1.15rem; margin: 5px 0 0; }
-  .path__nodes { display: flex; align-items: stretch; gap: 10px; overflow-x: auto; padding-top: 18px; }
+  .path__levels { display: flex; align-items: center; gap: 10px; overflow-x: auto; padding-top: 18px; }
+  .path-level { display: grid; gap: 10px; align-self: stretch; }
   .path-node { min-width: 190px; border: 1px solid var(--line); border-radius: 14px; padding: 13px; background: #0a1126; display: flex; flex-direction: column; gap: 10px; }
   .path-node strong { font-size: .86rem; line-height: 1.35; }
+  .path-node small { max-width: 220px; color: var(--muted); font-size: .65rem; line-height: 1.4; }
   .path-node.current { border-color: var(--orange); box-shadow: inset 0 0 0 1px rgba(255,107,0,.28), 0 0 28px rgba(255,107,0,.08); }
-  .arrow { align-self: center; color: #52658d; }
+  .arrow { flex: 0 0 auto; color: #52658d; }
+  @media (max-width: 760px) {
+    .path__levels { align-items: stretch; flex-direction: column; overflow: visible; }
+    .path-level { width: 100%; }
+    .path-node { min-width: 0; }
+    .arrow { align-self: center; transform: rotate(90deg); }
+  }
 </style>

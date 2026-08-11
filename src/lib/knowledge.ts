@@ -128,17 +128,34 @@ export function sameFeaturedTopic(entry: KnowledgeEntry, allEntries: KnowledgeEn
 
 export function knowledgePath(entry: KnowledgeEntry, allEntries: KnowledgeEntry[]) {
   const byId = indexByNodeId(allEntries);
-  const path: KnowledgeEntry[] = [entry];
-  const visited = new Set([entry.data.nodeId]);
+  const ancestors: KnowledgeEntry[] = [entry];
+  const ancestorIds = new Set([entry.data.nodeId]);
   let current = entry;
 
   while (current.data.parent) {
     const parent = byId.get(current.data.parent.target);
-    if (!parent || visited.has(parent.data.nodeId)) break;
-    path.unshift(parent);
-    visited.add(parent.data.nodeId);
+    if (!parent || ancestorIds.has(parent.data.nodeId)) break;
+    ancestors.unshift(parent);
+    ancestorIds.add(parent.data.nodeId);
     current = parent;
   }
 
-  return path;
+  const root = ancestors[0]!;
+  const branch: KnowledgeEntry[] = [];
+  const queue = [root];
+  const visited = new Set<string>();
+
+  while (queue.length > 0) {
+    const node = queue.shift()!;
+    if (visited.has(node.data.nodeId)) continue;
+    visited.add(node.data.nodeId);
+    branch.push(node);
+
+    const children = allEntries
+      .filter((candidate) => candidate.data.parent?.target === node.data.nodeId)
+      .sort((a, b) => a.data.publishedAt.getTime() - b.data.publishedAt.getTime() || a.data.nodeId.localeCompare(b.data.nodeId));
+    queue.push(...children);
+  }
+
+  return branch;
 }

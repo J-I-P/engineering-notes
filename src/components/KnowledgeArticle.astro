@@ -2,11 +2,11 @@
 import { render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import KnowledgePath from './KnowledgePath.astro';
-import RelationPanel from './RelationPanel.astro';
+import ConnectedKnowledge from './ConnectedKnowledge.astro';
 import KnowledgeCard from './KnowledgeCard.astro';
 import MermaidDiagrams from './MermaidDiagrams.astro';
 import { t, type Locale } from '../i18n';
-import { backlinks, compareByRecency, featuredTopicFor, knowledgePath, labelsFor, nodeHref, resolvedEntries, sameFeaturedTopic, topicHref, topicsFor, translationFor } from '../lib/knowledge';
+import { compareByRecency, featuredTopicFor, knowledgePath, labelsFor, resolvedEntries, sameFeaturedTopic, topicHref, topicsFor, translationFor } from '../lib/knowledge';
 import { localizedHref } from '../lib/urls';
 
 interface Props {
@@ -21,7 +21,6 @@ const labels = labelsFor(locale);
 const allEntries = resolvedEntries(allContent, locale).filter((item) => !item.data.draft);
 const { Content } = await render(entry);
 const path = knowledgePath(entry, allEntries);
-const incoming = backlinks(entry, allEntries);
 const featuredTopic = featuredTopicFor(entry, locale);
 const relatedNodes = sameFeaturedTopic(entry, allEntries).sort(compareByRecency).slice(0, 3);
 const topics = topicsFor(entry, locale);
@@ -45,18 +44,15 @@ const alternateURL = alternate ? localizedHref(`/knowledge/${entry.data.nodeId}/
     </header>
 
     <KnowledgePath path={path} currentId={entry.data.nodeId} locale={locale} />
+    <ConnectedKnowledge entry={entry} allEntries={allEntries} locale={locale} />
 
-    <div class="article-grid">
+    <div class:list={['article-grid', { 'article-grid--full': entry.data.evidence.length === 0 }]}>
       <article class="article-prose"><Content /></article>
-      <div class="sidebar">
-        <RelationPanel entry={entry} allEntries={allEntries} locale={locale} />
-        {entry.data.evidence.length > 0 && (
+      {entry.data.evidence.length > 0 && (
+        <div class="sidebar">
           <aside class="card evidence"><div class="eyebrow">{messages.article.evidence}</div><h2>{messages.article.confidence}</h2>{entry.data.evidence.map((item) => <div class="evidence-item"><span>✓</span>{labels.evidence[item]}</div>)}</aside>
-        )}
-        {incoming.length > 0 && (
-          <aside class="card backlinks"><div class="eyebrow">{messages.article.backlinks}</div><h2>{messages.article.referenced}</h2>{incoming.map(({ source, relation }) => <a href={nodeHref(source.data.nodeId, locale)}><strong>{source.data.title}</strong><span>{labels.relation[relation]}</span></a>)}</aside>
-        )}
-      </div>
+        </div>
+      )}
     </div>
 
     {featuredTopic && relatedNodes.length > 0 && (
@@ -76,14 +72,12 @@ const alternateURL = alternate ? localizedHref(`/knowledge/${entry.data.nodeId}/
     .article-hero > p { color: var(--muted); max-width: 720px; font-size: 1.05rem; line-height: 1.7; }
     .topic-row { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 22px; color: #8ea9e6; font-size: .78rem; }
     .article-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 52px; margin-top: 36px; }
+    .article-grid--full { grid-template-columns: minmax(0, 1fr); }
     .sidebar { display: grid; align-content: start; gap: 13px; position: sticky; top: 92px; align-self: start; }
-    .evidence, .backlinks { padding: 20px; }
-    .evidence h2, .backlinks h2 { margin: 5px 0 14px; font-size: 1rem; }
+    .evidence { padding: 20px; }
+    .evidence h2 { margin: 5px 0 14px; font-size: 1rem; }
     .evidence-item { color: #c8d2e7; border-top: 1px solid var(--line); padding: 9px 0; font-size: .8rem; text-transform: capitalize; display: flex; gap: 8px; }
     .evidence-item span { color: var(--green); }
-    .backlinks a { display: grid; gap: 4px; border-top: 1px solid var(--line); padding: 10px 0; }
-    .backlinks strong { font-size: .8rem; }
-    .backlinks span { color: var(--muted); font-size: .7rem; }
     @media (max-width: 860px) { .article-grid { grid-template-columns: 1fr; }.sidebar { position: static; } }
   </style>
 </BaseLayout>

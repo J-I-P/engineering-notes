@@ -1,0 +1,133 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { t, type Locale } from '../i18n';
+import { indexByNodeId, labelsFor, nodeHref, type RelationType } from '../lib/knowledge';
+
+interface Props {
+  entry: CollectionEntry<'knowledge'>;
+  allEntries: CollectionEntry<'knowledge'>[];
+  locale?: Locale;
+}
+
+const { entry, allEntries, locale = 'en' } = Astro.props;
+const messages = t(locale);
+const labels = labelsFor(locale);
+const byId = indexByNodeId(allEntries);
+type Edge = { source: string; target: string; relation: RelationType };
+const edgeKey = (source: string, target: string) => [source, target].sort().join('::');
+const edges = new Map<string, Edge>();
+
+// Explicit semantic relations are the clearest description of a connection.
+// Parent links fill gaps in the local graph, but never duplicate the same pair.
+for (const candidate of allEntries) {
+  for (const relation of candidate.data.relations) {
+    edges.set(edgeKey(candidate.data.nodeId, relation.target), {
+      source: candidate.data.nodeId,
+      target: relation.target,
+      relation: relation.type,
+    });
+  }
+}
+for (const candidate of allEntries) {
+  if (!candidate.data.parent) continue;
+  const key = edgeKey(candidate.data.nodeId, candidate.data.parent.target);
+  if (!edges.has(key)) {
+    edges.set(key, {
+      source: candidate.data.nodeId,
+      target: candidate.data.parent.target,
+      relation: candidate.data.parent.relation,
+    });
+  }
+}
+
+const incoming = [...edges.values()].flatMap((edge) => {
+  const source = edge.target === entry.data.nodeId ? byId.get(edge.source) : undefined;
+  return source ? [{ entry: source, relation: edge.relation }] : [];
+});
+const outgoing = [...edges.values()].flatMap((edge) => {
+  const target = edge.source === entry.data.nodeId ? byId.get(edge.target) : undefined;
+  return target ? [{ entry: target, relation: edge.relation }] : [];
+});
+const hasConnections = incoming.length > 0 || outgoing.length > 0;
+---
+
+{hasConnections && (
+  <section class="connected card" aria-labelledby="connected-heading">
+    <header>
+      <div>
+        <div class="eyebrow">{messages.article.connectedGraph}</div>
+        <h2 id="connected-heading">{messages.article.graphPosition}</h2>
+      </div>
+      <span class="muted">{incoming.length + outgoing.length} {messages.article.connections}</span>
+    </header>
+
+    <div class="local-graph">
+      <section class="graph-side graph-side--incoming" aria-label={messages.article.incoming}>
+        <div class="graph-label">{messages.article.incoming}</div>
+        <div class="graph-nodes">
+          {incoming.length > 0 ? incoming.map((item) => (
+            <a class="graph-node" href={nodeHref(item.entry.data.nodeId, locale)}>
+              <span>{labels.type[item.entry.data.type]}</span>
+              <strong>{item.entry.data.title}</strong>
+              <small>{labels.relation[item.relation]}</small>
+            </a>
+          )) : <span class="graph-empty">—</span>}
+        </div>
+      </section>
+
+      <div class="current-node">
+        <span class={`pill pill--${entry.data.type}`}><span class="pill-dot"></span>{labels.type[entry.data.type]}</span>
+        <strong>{entry.data.title}</strong>
+        <small>{messages.article.currentNode}</small>
+      </div>
+
+      <section class="graph-side graph-side--outgoing" aria-label={messages.article.outgoing}>
+        <div class="graph-label">{messages.article.outgoing}</div>
+        <div class="graph-nodes">
+          {outgoing.length > 0 ? outgoing.map((item) => (
+            <a class="graph-node" href={nodeHref(item.entry.data.nodeId, locale)}>
+              <span>{labels.type[item.entry.data.type]}</span>
+              <strong>{item.entry.data.title}</strong>
+              <small>{labels.relation[item.relation]}</small>
+            </a>
+          )) : <span class="graph-empty">—</span>}
+        </div>
+      </section>
+    </div>
+  </section>
+)}
+
+<style>
+  .connected { margin-top: 16px; padding: 22px; overflow: hidden; }
+  header { display: flex; align-items: end; justify-content: space-between; gap: 20px; }
+  header h2 { margin: 5px 0 0; font-size: 1.15rem; }
+  header > span { font-size: .78rem; }
+  .local-graph { display: grid; grid-template-columns: minmax(0, 1fr) 230px minmax(0, 1fr); gap: 34px; align-items: center; margin-top: 22px; }
+  .graph-side { position: relative; min-width: 0; }
+  .graph-side--incoming::after, .graph-side--outgoing::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 34px;
+    border-top: 1px solid #52658d;
+  }
+  .graph-side--incoming::after { right: -34px; }
+  .graph-side--outgoing::before { left: -34px; }
+  .graph-label { margin-bottom: 8px; color: var(--muted); font-size: .67rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+  .graph-nodes { display: grid; gap: 8px; }
+  .graph-node { display: grid; gap: 4px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 12px; background: #091127; }
+  .graph-node:hover { border-color: #425985; }
+  .graph-node span, .graph-node small { color: var(--muted); font-size: .66rem; }
+  .graph-node small { color: var(--orange); text-transform: uppercase; letter-spacing: .06em; }
+  .graph-node strong { font-size: .8rem; line-height: 1.35; }
+  .current-node { display: grid; justify-items: start; gap: 10px; padding: 16px; border: 1px solid var(--orange); border-radius: 15px; background: #10152a; box-shadow: 0 0 30px rgba(255, 107, 0, .1); }
+  .current-node strong { font-size: .9rem; line-height: 1.35; }
+  .current-node small { color: var(--orange); font-size: .66rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+  .graph-empty { color: var(--muted); }
+  @media (max-width: 760px) {
+    .local-graph { grid-template-columns: 1fr; gap: 14px; }
+    .current-node { grid-row: 2; }
+    .graph-side--outgoing { grid-row: 3; }
+    .graph-side--incoming::after, .graph-side--outgoing::before { display: none; }
+  }
+</style>

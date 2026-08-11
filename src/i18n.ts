@@ -39,7 +39,7 @@ export const messages = {
     },
     archive: { title: 'Knowledge — J-I-P', description: 'Browse every public engineering knowledge node by type and topic.', eyebrow: 'Knowledge archive', heading: 'Every node, still connected.', intro: 'Browse the complete public knowledge collection. Filter by what a node represents or by the engineering topic it contributes to.', filterLabel: 'Filter knowledge nodes', type: 'Type', topic: 'Topic', allTypes: 'All types', allTopics: 'All topics', empty: 'No knowledge nodes match these filters.', node: 'node', nodes: 'nodes' },
     explorePage: { title: 'Explore — J-I-P', description: 'Explore engineering knowledge by type, topic, and semantic relationship.', eyebrow: 'Explore', heading: 'Engineering knowledge graph', intro: 'Semantic relationships are explicit; topic proximity can be explored without changing the underlying knowledge graph.', filterLabel: 'Filter by topic', allTopics: 'All topics', connections: 'connections', edges: 'Semantic edges', relationships: 'Reasoning relationships', empty: 'No internal relationships are available for this view yet.' },
-    article: { path: 'Knowledge path', formed: 'How this understanding formed', node: 'node', nodes: 'nodes', relations: 'Relations', connected: 'Connected knowledge', noRelations: 'No explicit semantic relations yet.', evidence: 'Evidence', confidence: 'Confidence anchors', backlinks: 'Backlinks', referenced: 'Referenced by', sameTopic: 'Same topic', moreIn: 'More in', viewTopic: 'View topic →', realWorld: 'Real-world case' },
+    article: { path: 'Knowledge path', formed: 'How this knowledge branch developed', node: 'node', nodes: 'nodes', connectedGraph: 'Connected knowledge', graphPosition: 'How this node fits the graph', incoming: 'Points to this node', outgoing: 'This node points to', currentNode: 'Current node', connections: 'connections', evidence: 'Evidence', confidence: 'Confidence anchors', sameTopic: 'Same topic', moreIn: 'More in', viewTopic: 'View topic →', realWorld: 'Real-world case' },
   },
   'zh-tw': {
     htmlLang: 'zh-TW', languageName: 'English', home: '首頁', explore: '探索', knowledge: '知識', openQuestions: '開放問題', menu: '選單', skip: '跳至主要內容',
@@ -53,7 +53,7 @@ export const messages = {
     },
     archive: { title: '知識 — J-I-P', description: '依類型與主題瀏覽所有公開的工程知識節點。', eyebrow: '知識庫', heading: '每個節點，依然相互連結。', intro: '瀏覽完整的公開知識集合，依節點代表的內容或其貢獻的工程主題進行篩選。', filterLabel: '篩選知識節點', type: '類型', topic: '主題', allTypes: '所有類型', allTopics: '所有主題', empty: '沒有符合篩選條件的知識節點。', node: '個節點', nodes: '個節點' },
     explorePage: { title: '探索 — J-I-P', description: '依類型、主題與語意關係探索工程知識。', eyebrow: '探索', heading: '工程知識圖譜', intro: '語意關係被明確記錄；你可以探索主題上的接近程度，而不改變底層知識圖。', filterLabel: '依主題篩選', allTopics: '所有主題', connections: '個連結', edges: '語意邊', relationships: '推理關係', empty: '這個視圖目前沒有內部關係。' },
-    article: { path: '知識路徑', formed: '這個理解如何形成', node: '個節點', nodes: '個節點', relations: '關係', connected: '相連的知識', noRelations: '目前沒有明確的語意關係。', evidence: '證據', confidence: '信心依據', backlinks: '反向連結', referenced: '被以下內容引用', sameTopic: '相同主題', moreIn: '更多內容：', viewTopic: '查看主題 →', realWorld: '真實世界案例' },
+    article: { path: '知識路徑', formed: '這條知識分支如何發展', node: '個節點', nodes: '個節點', connectedGraph: '相連的知識', graphPosition: '這個節點在知識圖中的位置', incoming: '關係指向此節點', outgoing: '此節點指向', currentNode: '目前節點', connections: '個連結', evidence: '證據', confidence: '信心依據', sameTopic: '相同主題', moreIn: '更多內容：', viewTopic: '查看主題 →', realWorld: '真實世界案例' },
   },
 } as const;
 
