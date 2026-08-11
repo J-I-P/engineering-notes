@@ -10,6 +10,31 @@ test('accepts a valid graph and known topics', () => {
   assert.deepEqual(validateGraph(nodes, new Set(['reliability'])), []);
 });
 
+test('allows translated relations to concepts that currently exist only in English', () => {
+  const nodes: GraphNode[] = [
+    { nodeId: 'root', locale: 'en' },
+    { nodeId: 'root', locale: 'zh-tw' },
+    { nodeId: 'english-only', locale: 'en' },
+    {
+      nodeId: 'child',
+      locale: 'zh-tw',
+      parent: { type: 'derived_from', target: 'root' },
+      relations: [{ type: 'related_to', target: 'english-only' }],
+    },
+  ];
+
+  assert.deepEqual(validateGraph(nodes), []);
+});
+
+test('rejects translations that drift from the concept graph metadata', () => {
+  const nodes: GraphNode[] = [
+    { nodeId: 'same', locale: 'en', type: 'learning', topics: ['reliability'] },
+    { nodeId: 'same', locale: 'zh-tw', type: 'takeaway', topics: ['reliability'] },
+  ];
+
+  assert.equal(validateGraph(nodes)[0]?.code, 'translation-mismatch');
+});
+
 test('reports duplicate ids, broken targets, duplicate relations, and unknown topics', () => {
   const nodes: GraphNode[] = [
     {

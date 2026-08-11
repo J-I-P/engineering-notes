@@ -1,4 +1,7 @@
 ---
+import { t, type Locale } from '../i18n';
+import { localizedHref, withBase } from '../lib/urls';
+
 interface Props {
   title?: string;
   description?: string;
@@ -6,45 +9,58 @@ interface Props {
   ogImage?: string | URL;
   ogType?: 'website' | 'article';
   noindex?: boolean;
+  locale?: Locale;
+  alternateURL?: string | URL;
 }
 
-import { withBase } from '../lib/urls';
-
 const {
-  title = 'J-I-P — Engineering Knowledge',
-  description = 'Engineering knowledge, grown through building, research, and verification.',
+  title,
+  description,
   canonicalURL,
   ogImage = withBase('/favicon.svg'),
   ogType = 'website',
   noindex = false,
+  locale = 'en',
+  alternateURL,
 } = Astro.props;
 
+const messages = t(locale as Locale);
+const resolvedTitle = title ?? (locale === 'zh-tw' ? 'J-I-P — 工程知識' : 'J-I-P — Engineering Knowledge');
+const resolvedDescription = description ?? (locale === 'zh-tw'
+  ? '透過實作、研究與驗證持續成長的工程知識。'
+  : 'Engineering knowledge, grown through building, research, and verification.');
 const canonical = canonicalURL
   ? new URL(canonicalURL, Astro.site ?? Astro.url)
   : new URL(Astro.url.pathname, Astro.site ?? Astro.url);
 const socialImage = new URL(ogImage, Astro.site ?? Astro.url);
+const alternate = alternateURL ? new URL(alternateURL, Astro.site ?? Astro.url) : undefined;
+const englishURL = locale === 'en' ? canonical : alternate;
+const chineseURL = locale === 'zh-tw' ? canonical : alternate;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={messages.htmlLang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <meta name="description" content={description} />
+    <meta name="description" content={resolvedDescription} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />
+    {englishURL && <link rel="alternate" hreflang="en" href={englishURL} />}
+    {chineseURL && <link rel="alternate" hreflang="zh-TW" href={chineseURL} />}
+    {englishURL && <link rel="alternate" hreflang="x-default" href={englishURL} />}
     <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
     <meta property="og:site_name" content="J-I-P" />
     <meta property="og:type" content={ogType} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:title" content={resolvedTitle} />
+    <meta property="og:description" content={resolvedDescription} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={socialImage} />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:title" content={resolvedTitle} />
+    <meta name="twitter:description" content={resolvedDescription} />
     <meta name="twitter:image" content={socialImage} />
-    <title>{title}</title>
+    <title>{resolvedTitle}</title>
     <style is:global>
       :root {
         color-scheme: dark;
@@ -96,6 +112,7 @@ const socialImage = new URL(ogImage, Astro.site ?? Astro.url);
       .nav { display: flex; gap: 8px; color: var(--muted); font-size: .92rem; }
       .nav a { padding: 9px 12px; border-radius: 10px; }
       .nav a:hover { color: var(--text); background: rgba(255,255,255,.04); }
+      .language-link { border-left: 1px solid var(--line); margin-left: 4px; }
       .mobile-nav { display: none; position: relative; }
       .mobile-nav summary {
         cursor: pointer;
@@ -173,23 +190,25 @@ const socialImage = new URL(ogImage, Astro.site ?? Astro.url);
     </style>
   </head>
   <body>
-    <a class="skip-link" href="#main-content">Skip to content</a>
+    <a class="skip-link" href="#main-content">{messages.skip}</a>
     <header class="site-header">
       <div class="container site-header__inner">
-        <a class="brand" href={withBase('/')}><span>J-I-P</span><span class="brand-dot"></span></a>
+        <a class="brand" href={localizedHref('/', locale)}><span>J-I-P</span><span class="brand-dot"></span></a>
         <nav class="nav" aria-label="Primary">
-          <a href={withBase('/')}>Home</a>
-          <a href={withBase('/explore/')}>Explore</a>
-          <a href={withBase('/knowledge/')}>Knowledge</a>
-          <a href={withBase('/#open-questions')}>Open Questions</a>
+          <a href={localizedHref('/', locale)}>{messages.home}</a>
+          <a href={localizedHref('/explore/', locale)}>{messages.explore}</a>
+          <a href={localizedHref('/knowledge/', locale)}>{messages.knowledge}</a>
+          <a href={localizedHref('/#open-questions', locale)}>{messages.openQuestions}</a>
+          {alternate && <a class="language-link" href={alternate}>{messages.languageName}</a>}
         </nav>
         <details class="mobile-nav">
-          <summary>Menu</summary>
+          <summary>{messages.menu}</summary>
           <nav class="mobile-nav__links" aria-label="Primary mobile">
-            <a href={withBase('/')}>Home</a>
-            <a href={withBase('/explore/')}>Explore</a>
-            <a href={withBase('/knowledge/')}>Knowledge</a>
-            <a href={withBase('/#open-questions')}>Open Questions</a>
+            <a href={localizedHref('/', locale)}>{messages.home}</a>
+            <a href={localizedHref('/explore/', locale)}>{messages.explore}</a>
+            <a href={localizedHref('/knowledge/', locale)}>{messages.knowledge}</a>
+            <a href={localizedHref('/#open-questions', locale)}>{messages.openQuestions}</a>
+            {alternate && <a href={alternate}>{messages.languageName}</a>}
           </nav>
         </details>
       </div>

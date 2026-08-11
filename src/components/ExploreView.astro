@@ -1,15 +1,21 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import type { TopicMetadata } from '../data/topics';
-import { explicitRelations, nodeHref, TOPICS, topicHref, TYPE_LABELS } from '../lib/knowledge';
-import { withBase } from '../lib/urls';
+import { localizeTopic, t, type Locale } from '../i18n';
+import { explicitRelations, labelsFor, nodeHref, TOPICS, topicHref } from '../lib/knowledge';
+import { localizedHref } from '../lib/urls';
 
 interface Props {
   entries: CollectionEntry<'knowledge'>[];
   topic?: TopicMetadata;
+  locale?: Locale;
 }
 
-const { entries: allEntries, topic } = Astro.props;
+const { entries: allEntries, topic, locale = 'en' } = Astro.props;
+const messages = t(locale);
+const labels = labelsFor(locale);
+const usedTopics = new Set(allEntries.flatMap((entry) => entry.data.topics));
+const localizedTopics = TOPICS.filter((item) => usedTopics.has(item.slug)).map((item) => localizeTopic(item, locale));
 const entries = topic
   ? allEntries.filter((entry) => entry.data.topics.includes(topic.slug))
   : allEntries;
@@ -24,31 +30,31 @@ const columns = ['case', 'research', 'experiment', 'learning', 'takeaway', 'proj
 
 <main class="container explore">
   <header>
-    <div class="eyebrow">Explore</div>
-    <h1>{topic ? topic.title : 'Engineering knowledge graph'}</h1>
-    <p>{topic?.description ?? 'Semantic relationships are explicit; topic proximity can be explored without changing the underlying knowledge graph.'}</p>
+    <div class="eyebrow">{messages.explorePage.eyebrow}</div>
+    <h1>{topic ? localizeTopic(topic, locale).title : messages.explorePage.heading}</h1>
+    <p>{topic ? localizeTopic(topic, locale).description : messages.explorePage.intro}</p>
   </header>
 
-  <nav class="topic-filters" aria-label="Filter by topic">
-    <a href={withBase('/explore/')} class:list={{ active: !topic }}>All topics</a>
-    {TOPICS.map((item) => <a href={topicHref(item.slug)} class:list={{ active: topic?.slug === item.slug }}>{item.title}</a>)}
+  <nav class="topic-filters" aria-label={messages.explorePage.filterLabel}>
+    <a href={localizedHref('/explore/', locale)} class:list={{ active: !topic }}>{messages.explorePage.allTopics}</a>
+    {localizedTopics.map((item) => <a href={topicHref(item.slug, locale)} class:list={{ active: topic?.slug === item.slug }}>{item.title}</a>)}
   </nav>
 
   <div class="graph card">
-    <div class="graph__legend">{columns.map((type) => <span class={`pill pill--${type}`}><span class="pill-dot"></span>{TYPE_LABELS[type]}</span>)}</div>
+    <div class="graph__legend">{columns.map((type) => <span class={`pill pill--${type}`}><span class="pill-dot"></span>{labels.type[type]}</span>)}</div>
     <div class="lanes">
       {columns.map((type) => {
         const nodes = entries.filter((entry) => entry.data.type === type);
         if (!nodes.length) return null;
-        return <section class="lane"><div class="lane__title">{TYPE_LABELS[type]}</div>{nodes.map((entry) => <a href={nodeHref(entry.data.nodeId)}><strong>{entry.data.title}</strong><small>{edges.filter((edge) => edge.source === entry.data.nodeId || edge.target === entry.data.nodeId).length} connections</small></a>)}</section>;
+        return <section class="lane"><div class="lane__title">{labels.type[type]}</div>{nodes.map((entry) => <a href={nodeHref(entry.data.nodeId, locale)}><strong>{entry.data.title}</strong><small>{edges.filter((edge) => edge.source === entry.data.nodeId || edge.target === entry.data.nodeId).length} {messages.explorePage.connections}</small></a>)}</section>;
       })}
     </div>
   </div>
 
   <section class="edge-table">
-    <div class="eyebrow">Semantic edges</div>
-    <h2>Reasoning relationships</h2>
-    {edges.length > 0 ? edges.map((edge) => <div><code>{edge.source}</code><span>{edge.type.replaceAll('_', ' ')}</span><code>{edge.target}</code></div>) : <p class="muted">No internal relationships are available for this view yet.</p>}
+    <div class="eyebrow">{messages.explorePage.edges}</div>
+    <h2>{messages.explorePage.relationships}</h2>
+    {edges.length > 0 ? edges.map((edge) => <div><code>{edge.source}</code><span>{labels.relation[edge.type]}</span><code>{edge.target}</code></div>) : <p class="muted">{messages.explorePage.empty}</p>}
   </section>
 </main>
 

@@ -1,27 +1,31 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { nodeHref, TYPE_LABELS } from '../lib/knowledge';
+import { t, type Locale } from '../i18n';
+import { labelsFor, nodeHref } from '../lib/knowledge';
 
 interface Props {
   path: CollectionEntry<'knowledge'>[];
   currentId: string;
+  locale?: Locale;
 }
-const { path, currentId } = Astro.props;
+const { path, currentId, locale = 'en' } = Astro.props;
+const messages = t(locale);
+const labels = labelsFor(locale);
 ---
 
 <div class="path card">
   <div class="path__heading">
     <div>
-      <div class="eyebrow">Knowledge path</div>
-      <h2>How this understanding formed</h2>
+      <div class="eyebrow">{messages.article.path}</div>
+      <h2>{messages.article.formed}</h2>
     </div>
-    <span class="muted">{path.length} nodes</span>
+    <span class="muted">{path.length} {path.length === 1 ? messages.article.node : messages.article.nodes}</span>
   </div>
   <div class="path__nodes">
     {path.map((node, index) => (
       <>
-        <a class:list={['path-node', { current: node.data.nodeId === currentId }]} href={nodeHref(node.data.nodeId)}>
-          <span class={`pill pill--${node.data.type}`}><span class="pill-dot"></span>{TYPE_LABELS[node.data.type]}</span>
+        <a class:list={['path-node', { current: node.data.nodeId === currentId }]} href={nodeHref(node.data.nodeId, locale)}>
+          <span class={`pill pill--${node.data.type}`}><span class="pill-dot"></span>{labels.type[node.data.type]}</span>
           <strong>{node.data.title}</strong>
         </a>
         {index < path.length - 1 && <span class="arrow">→</span>}

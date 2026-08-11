@@ -1,0 +1,24 @@
+---
+import { getCollection } from 'astro:content';
+import ExploreView from '../../../components/ExploreView.astro';
+import { TOPICS } from '../../../data/topics';
+import { localizeTopic } from '../../../i18n';
+import { entriesForLocale } from '../../../lib/knowledge';
+import { localizedHref } from '../../../lib/urls';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const entries = entriesForLocale(await getCollection('knowledge', ({ data }) => !data.draft), 'zh-tw');
+  const usedTopics = new Set(entries.flatMap((entry) => entry.data.topics));
+  return TOPICS
+    .filter((topic) => usedTopics.has(topic.slug))
+    .map((topic) => ({ params: { topic: topic.slug }, props: { topic, entries } }));
+}
+
+const { topic, entries } = Astro.props;
+const localizedTopic = localizeTopic(topic, 'zh-tw');
+---
+
+<BaseLayout title={`${localizedTopic.title} — 探索 — J-I-P`} description={localizedTopic.description} locale="zh-tw" alternateURL={localizedHref(`/explore/${topic.slug}/`, 'en')}>
+  <ExploreView entries={entries} topic={topic} locale="zh-tw" />
+</BaseLayout>

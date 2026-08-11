@@ -1,11 +1,16 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { compareByRecency, FEATURED_TOPICS, nodeHref, topicHref, TYPE_LABELS } from '../lib/knowledge';
-import { withBase } from '../lib/urls';
+import { localizeTopic, t, type Locale } from '../i18n';
+import { compareByRecency, entriesForLocale, FEATURED_TOPICS, labelsFor, nodeHref, topicHref } from '../lib/knowledge';
+import { localizedHref } from '../lib/urls';
 
-const entries = (await getCollection('knowledge', ({ data }) => !data.draft))
-  .sort(compareByRecency);
+interface Props { locale?: Locale; }
+const { locale = 'en' } = Astro.props;
+const messages = t(locale);
+const labels = labelsFor(locale);
+const alternateLocale: Locale = locale === 'en' ? 'zh-tw' : 'en';
+const entries = entriesForLocale(await getCollection('knowledge', ({ data }) => !data.draft), locale).sort(compareByRecency);
 
 const questions = entries.filter((entry) => entry.data.type === 'question');
 const cases = entries.filter((entry) => entry.data.type === 'case');
@@ -15,35 +20,35 @@ const recentlyFormed = entries
 
 const activeTopics = FEATURED_TOPICS
   .map((topic) => ({
-    ...topic,
+    ...localizeTopic(topic, locale),
     count: entries.filter((entry) => entry.data.topics.includes(topic.slug)).length,
   }))
   .filter((topic) => topic.count > 0);
 ---
 
-<BaseLayout>
+<BaseLayout locale={locale} alternateURL={localizedHref('/', alternateLocale)}>
   <main>
     <section class="hero container">
       <div class="hero__copy">
-        <div class="eyebrow">Engineering knowledge system</div>
-        <h1>Build things.<br /><span>Trace what you learn.</span></h1>
-        <p>Not a stream of isolated posts. A public map of engineering cases, research, experiments, and the reasoning that changes how I build software.</p>
+        <div class="eyebrow">{messages.homePage.eyebrow}</div>
+        <h1>{messages.homePage.title1}<br /><span>{messages.homePage.title2}</span></h1>
+        <p>{messages.homePage.intro}</p>
         <div class="hero__actions">
-          <a class="primary" href={withBase('/explore/')}>Explore the graph →</a>
-          <a class="secondary" href="#knowledge">Read knowledge nodes</a>
+          <a class="primary" href={localizedHref('/explore/', locale)}>{messages.homePage.exploreGraph}</a>
+          <a class="secondary" href="#knowledge">{messages.homePage.readNodes}</a>
         </div>
       </div>
     </section>
 
     <section class="section container">
       <div class="section-heading">
-        <div><div class="eyebrow">Currently exploring</div><h2>Active knowledge areas</h2></div>
+        <div><div class="eyebrow">{messages.homePage.currently}</div><h2>{messages.homePage.activeAreas}</h2></div>
       </div>
       <div class="branch-grid">
         {activeTopics.map((topic) => (
-          <a class="branch card card-hover" href={topicHref(topic.slug)}>
+          <a class="branch card card-hover" href={topicHref(topic.slug, locale)}>
             <strong>{topic.title}</strong>
-            <span>{topic.count} {topic.count === 1 ? 'node' : 'nodes'}</span>
+            <span>{topic.count} {topic.count === 1 ? messages.homePage.node : messages.homePage.nodes}</span>
           </a>
         ))}
       </div>
@@ -51,13 +56,13 @@ const activeTopics = FEATURED_TOPICS
 
     <section class="section container" id="knowledge">
       <div class="section-heading">
-        <div><div class="eyebrow">Recently formed</div><h2>Knowledge, not just posts</h2></div>
-        <a class="muted" href={withBase('/explore/')}>View graph →</a>
+        <div><div class="eyebrow">{messages.homePage.recently}</div><h2>{messages.homePage.knowledgeNotPosts}</h2></div>
+        <a class="muted" href={localizedHref('/explore/', locale)}>{messages.homePage.viewGraph}</a>
       </div>
       <div class="content-list">
         {recentlyFormed.map((entry) => (
-          <a href={nodeHref(entry.data.nodeId)}>
-            <span class={`content-type content-type--${entry.data.type}`}>{TYPE_LABELS[entry.data.type]}</span>
+          <a href={nodeHref(entry.data.nodeId, locale)}>
+            <span class={`content-type content-type--${entry.data.type}`}>{labels.type[entry.data.type]}</span>
             <strong>{entry.data.title}</strong>
             <span aria-hidden="true">↗</span>
           </a>
@@ -66,19 +71,19 @@ const activeTopics = FEATURED_TOPICS
     </section>
 
     <section class="section container cases-section">
-      <div class="section-heading"><div><div class="eyebrow">Real-world origins</div><h2>Engineering cases</h2></div></div>
+      <div class="section-heading"><div><div class="eyebrow">{messages.homePage.origins}</div><h2>{messages.homePage.cases}</h2></div></div>
       <div class="content-list">
         {cases.map((entry) => (
-          <a href={nodeHref(entry.data.nodeId)}><strong>{entry.data.title}</strong><span aria-hidden="true">↗</span></a>
+          <a href={nodeHref(entry.data.nodeId, locale)}><strong>{entry.data.title}</strong><span aria-hidden="true">↗</span></a>
         ))}
       </div>
     </section>
 
     <section class="section container" id="open-questions">
-      <div class="section-heading"><div><div class="eyebrow">Not pretending to know</div><h2>Open questions</h2></div></div>
+      <div class="section-heading"><div><div class="eyebrow">{messages.homePage.uncertainty}</div><h2>{messages.homePage.questions}</h2></div></div>
       <div class="question-list">
         {questions.map((entry, index) => (
-          <a href={nodeHref(entry.data.nodeId)}>
+          <a href={nodeHref(entry.data.nodeId, locale)}>
             <span class="number">0{index + 1}</span>
             <div><strong>{entry.data.title}</strong><p>{entry.data.description}</p></div>
             <span>↗</span>

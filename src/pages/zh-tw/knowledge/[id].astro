@@ -1,15 +1,15 @@
 ---
 import { getCollection } from 'astro:content';
-import KnowledgeArticle from '../../components/KnowledgeArticle.astro';
-import { entriesForLocale } from '../../lib/knowledge';
+import KnowledgeArticle from '../../../components/KnowledgeArticle.astro';
+import { entriesForLocale } from '../../../lib/knowledge';
 
 export async function getStaticPaths() {
   const allContent = await getCollection('knowledge', ({ data }) => !data.draft);
-  const entries = entriesForLocale(allContent, 'en');
+  const entries = entriesForLocale(allContent, 'zh-tw');
   return entries.map((entry) => ({ params: { id: entry.data.nodeId }, props: { entry, allContent } }));
 }
 
 const { entry, allContent } = Astro.props;
 ---
 
-<KnowledgeArticle entry={entry} allContent={allContent} locale="en" />
+<KnowledgeArticle entry={entry} allContent={allContent} locale="zh-tw" />

@@ -38,6 +38,7 @@ const knowledge = defineCollection({
   loader: glob({ base: './src/content/knowledge', pattern: '**/*.md' }),
   schema: z.object({
     nodeId: z.string(),
+    locale: z.enum(['en', 'zh-tw']).default('en'),
     title: z.string(),
     description: z.string(),
     type: nodeType,

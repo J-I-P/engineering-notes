@@ -1,0 +1,89 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import KnowledgePath from './KnowledgePath.astro';
+import RelationPanel from './RelationPanel.astro';
+import KnowledgeCard from './KnowledgeCard.astro';
+import MermaidDiagrams from './MermaidDiagrams.astro';
+import { t, type Locale } from '../i18n';
+import { backlinks, compareByRecency, featuredTopicFor, knowledgePath, labelsFor, nodeHref, resolvedEntries, sameFeaturedTopic, topicHref, topicsFor, translationFor } from '../lib/knowledge';
+import { localizedHref } from '../lib/urls';
+
+interface Props {
+  entry: CollectionEntry<'knowledge'>;
+  allContent: CollectionEntry<'knowledge'>[];
+  locale: Locale;
+}
+
+const { entry, allContent, locale } = Astro.props;
+const messages = t(locale);
+const labels = labelsFor(locale);
+const allEntries = resolvedEntries(allContent, locale).filter((item) => !item.data.draft);
+const { Content } = await render(entry);
+const path = knowledgePath(entry, allEntries);
+const incoming = backlinks(entry, allEntries);
+const featuredTopic = featuredTopicFor(entry, locale);
+const relatedNodes = sameFeaturedTopic(entry, allEntries).sort(compareByRecency).slice(0, 3);
+const topics = topicsFor(entry, locale);
+const hasMermaid = entry.body?.includes('```mermaid') ?? false;
+const alternateLocale: Locale = locale === 'en' ? 'zh-tw' : 'en';
+const alternate = translationFor(entry, allContent, alternateLocale);
+const alternateURL = alternate ? localizedHref(`/knowledge/${entry.data.nodeId}/`, alternateLocale) : undefined;
+---
+
+<BaseLayout title={`${entry.data.title} — J-I-P`} description={entry.data.description} ogType="article" locale={locale} alternateURL={alternateURL}>
+  <main class="container article-shell">
+    <header class="article-hero">
+      <div class="article-hero__meta">
+        <span class={`pill pill--${entry.data.type}`}><span class="pill-dot"></span>{labels.type[entry.data.type]}</span>
+        <span>{labels.status[entry.data.status]}</span>
+        {entry.data.origin?.kind === 'work' && <span>{messages.article.realWorld} · {labels.disclosure[entry.data.origin.disclosure]}</span>}
+      </div>
+      <h1>{entry.data.title}</h1>
+      <p>{entry.data.description}</p>
+      <div class="topic-row">{topics.map((topic) => <a href={topicHref(topic.slug, locale)}>#{topic.title}</a>)}</div>
+    </header>
+
+    <KnowledgePath path={path} currentId={entry.data.nodeId} locale={locale} />
+
+    <div class="article-grid">
+      <article class="article-prose"><Content /></article>
+      <div class="sidebar">
+        <RelationPanel entry={entry} allEntries={allEntries} locale={locale} />
+        {entry.data.evidence.length > 0 && (
+          <aside class="card evidence"><div class="eyebrow">{messages.article.evidence}</div><h2>{messages.article.confidence}</h2>{entry.data.evidence.map((item) => <div class="evidence-item"><span>✓</span>{labels.evidence[item]}</div>)}</aside>
+        )}
+        {incoming.length > 0 && (
+          <aside class="card backlinks"><div class="eyebrow">{messages.article.backlinks}</div><h2>{messages.article.referenced}</h2>{incoming.map(({ source, relation }) => <a href={nodeHref(source.data.nodeId, locale)}><strong>{source.data.title}</strong><span>{labels.relation[relation]}</span></a>)}</aside>
+        )}
+      </div>
+    </div>
+
+    {featuredTopic && relatedNodes.length > 0 && (
+      <section class="section">
+        <div class="section-heading"><div><div class="eyebrow">{messages.article.sameTopic}</div><h2>{messages.article.moreIn} {featuredTopic.title}</h2></div><a class="muted" href={topicHref(featuredTopic.slug, locale)}>{messages.article.viewTopic}</a></div>
+        <div class="grid grid-3">{relatedNodes.map((node) => <KnowledgeCard entry={node} locale={locale} />)}</div>
+      </section>
+    )}
+    {hasMermaid && <MermaidDiagrams />}
+  </main>
+
+  <style>
+    .article-shell { padding-top: 58px; padding-bottom: 80px; }
+    .article-hero { max-width: 840px; padding: 30px 0 40px; }
+    .article-hero__meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; color: var(--muted); font-size: .76rem; }
+    .article-hero h1 { font-size: clamp(2.6rem, 5.5vw, 5.1rem); line-height: 1.02; letter-spacing: -.06em; margin: 18px 0; }
+    .article-hero > p { color: var(--muted); max-width: 720px; font-size: 1.05rem; line-height: 1.7; }
+    .topic-row { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 22px; color: #8ea9e6; font-size: .78rem; }
+    .article-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 52px; margin-top: 36px; }
+    .sidebar { display: grid; align-content: start; gap: 13px; position: sticky; top: 92px; align-self: start; }
+    .evidence, .backlinks { padding: 20px; }
+    .evidence h2, .backlinks h2 { margin: 5px 0 14px; font-size: 1rem; }
+    .evidence-item { color: #c8d2e7; border-top: 1px solid var(--line); padding: 9px 0; font-size: .8rem; text-transform: capitalize; display: flex; gap: 8px; }
+    .evidence-item span { color: var(--green); }
+    .backlinks a { display: grid; gap: 4px; border-top: 1px solid var(--line); padding: 10px 0; }
+    .backlinks strong { font-size: .8rem; }
+    .backlinks span { color: var(--muted); font-size: .7rem; }
+    @media (max-width: 860px) { .article-grid { grid-template-columns: 1fr; }.sidebar { position: static; } }
+  </style>
+</BaseLayout>

@@ -5,6 +5,9 @@ export type GraphRelation = {
 
 export type GraphNode = {
   nodeId: string;
+  locale?: string;
+  type?: string;
+  status?: string;
   source?: string;
   topics?: string[];
   draft?: boolean;
@@ -20,7 +23,8 @@ export type ValidationIssue = {
     | 'parent-cycle'
     | 'duplicate-relation'
     | 'unknown-topic'
-    | 'public-targets-draft';
+    | 'public-targets-draft'
+    | 'translation-mismatch';
   message: string;
   source?: string;
 };
@@ -28,29 +32,66 @@ export type ValidationIssue = {
 export function validateGraph(nodes: GraphNode[], knownTopics?: Set<string>): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   const byId = new Map<string, GraphNode>();
+  const localeFor = (node: GraphNode) => node.locale ?? 'en';
+  const keyFor = (node: GraphNode) => `${localeFor(node)}\0${node.nodeId}`;
+  const targetFor = (node: GraphNode, target: string) =>
+    byId.get(`${localeFor(node)}\0${target}`) ?? byId.get(`en\0${target}`);
 
   for (const node of nodes) {
-    const existing = byId.get(node.nodeId);
+    const key = keyFor(node);
+    const existing = byId.get(key);
     if (existing) {
       issues.push({
         code: 'duplicate-node-id',
-        message: `Duplicate nodeId "${node.nodeId}" (also used by ${existing.source ?? 'another node'}).`,
+        message: `Duplicate nodeId "${node.nodeId}" for locale "${localeFor(node)}" (also used by ${existing.source ?? 'another node'}).`,
         source: node.source,
       });
     } else {
-      byId.set(node.nodeId, node);
+      byId.set(key, node);
+    }
+  }
+
+  const concepts = new Map<string, GraphNode[]>();
+  for (const node of nodes) {
+    const translations = concepts.get(node.nodeId) ?? [];
+    translations.push(node);
+    concepts.set(node.nodeId, translations);
+  }
+  for (const [nodeId, translations] of concepts) {
+    const byLocale = new Map<string, GraphNode>();
+    for (const translation of translations) {
+      if (!byLocale.has(localeFor(translation))) byLocale.set(localeFor(translation), translation);
+    }
+    const localized = [...byLocale.values()];
+    if (localized.length < 2) continue;
+    const baseline = localized.find((node) => localeFor(node) === 'en') ?? localized[0]!;
+    const graphShape = (node: GraphNode) => JSON.stringify({
+      type: node.type,
+      status: node.status,
+      topics: node.topics ?? [],
+      draft: node.draft ?? false,
+      parent: node.parent,
+      relations: node.relations ?? [],
+    });
+    for (const translation of localized) {
+      if (translation === baseline || graphShape(translation) === graphShape(baseline)) continue;
+      issues.push({
+        code: 'translation-mismatch',
+        message: `Translation "${localeFor(translation)}" for nodeId "${nodeId}" does not match the graph metadata in "${localeFor(baseline)}".`,
+        source: translation.source,
+      });
     }
   }
 
   for (const node of nodes) {
-    if (node.parent && !byId.has(node.parent.target)) {
+    if (node.parent && !targetFor(node, node.parent.target)) {
       issues.push({
         code: 'broken-parent-target',
         message: `Parent target "${node.parent.target}" does not exist.`,
         source: node.source,
       });
     }
-    if (!node.draft && node.parent && byId.get(node.parent.target)?.draft) {
+    if (!node.draft && node.parent && targetFor(node, node.parent.target)?.draft) {
       issues.push({
         code: 'public-targets-draft',
         message: `Published node has draft parent "${node.parent.target}".`,
@@ -63,14 +104,14 @@ export function validateGraph(nodes: GraphNode[], knownTopics?: Set<string>): Va
       seenRelations.add(`${node.parent.type}\0${node.parent.target}`);
     }
     for (const relation of node.relations ?? []) {
-      if (!byId.has(relation.target)) {
+      if (!targetFor(node, relation.target)) {
         issues.push({
           code: 'broken-relation-target',
           message: `Relation target "${relation.target}" does not exist.`,
           source: node.source,
         });
       }
-      if (!node.draft && byId.get(relation.target)?.draft) {
+      if (!node.draft && targetFor(node, relation.target)?.draft) {
         issues.push({
           code: 'public-targets-draft',
           message: `Published node has relation to draft target "${relation.target}".`,
@@ -109,14 +150,15 @@ export function validateGraph(nodes: GraphNode[], knownTopics?: Set<string>): Va
     let current: GraphNode | undefined = node;
 
     while (current) {
-      const cycleStart = positions.get(current.nodeId);
+      const currentKey = keyFor(current);
+      const cycleStart = positions.get(currentKey);
       if (cycleStart !== undefined) {
         const cycle = path.slice(cycleStart);
         const signature = [...cycle].sort().join('\0');
         if (!reportedCycles.has(signature)) {
           issues.push({
             code: 'parent-cycle',
-            message: `Parent cycle detected: ${[...cycle, current.nodeId].join(' -> ')}.`,
+            message: `Parent cycle detected: ${[...cycle, currentKey].join(' -> ')}.`,
             source: current.source,
           });
           reportedCycles.add(signature);
@@ -124,9 +166,9 @@ export function validateGraph(nodes: GraphNode[], knownTopics?: Set<string>): Va
         break;
       }
 
-      positions.set(current.nodeId, path.length);
-      path.push(current.nodeId);
-      current = current.parent ? byId.get(current.parent.target) : undefined;
+      positions.set(currentKey, path.length);
+      path.push(currentKey);
+      current = current.parent ? targetFor(current, current.parent.target) : undefined;
     }
   }
 

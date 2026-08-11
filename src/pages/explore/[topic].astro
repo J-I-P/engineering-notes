@@ -2,10 +2,12 @@
 import { getCollection } from 'astro:content';
 import ExploreView from '../../components/ExploreView.astro';
 import { TOPICS } from '../../data/topics';
+import { entriesForLocale } from '../../lib/knowledge';
+import { localizedHref } from '../../lib/urls';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 export async function getStaticPaths() {
-  const entries = await getCollection('knowledge', ({ data }) => !data.draft);
+  const entries = entriesForLocale(await getCollection('knowledge', ({ data }) => !data.draft), 'en');
   const usedTopics = new Set(entries.flatMap((entry) => entry.data.topics));
   return TOPICS
     .filter((topic) => usedTopics.has(topic.slug))
@@ -15,6 +17,6 @@ export async function getStaticPaths() {
 const { topic, entries } = Astro.props;
 ---
 
-<BaseLayout title={`${topic.title} — Explore — J-I-P`} description={topic.description}>
-  <ExploreView entries={entries} topic={topic} />
+<BaseLayout title={`${topic.title} — Explore — J-I-P`} description={topic.description} locale="en" alternateURL={localizedHref(`/explore/${topic.slug}/`, 'zh-tw')}>
+  <ExploreView entries={entries} topic={topic} locale="en" />
 </BaseLayout>

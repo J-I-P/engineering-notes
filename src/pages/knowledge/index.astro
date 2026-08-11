@@ -2,31 +2,38 @@
 import { getCollection } from 'astro:content';
 import KnowledgeCard from '../../components/KnowledgeCard.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { compareByRecency, TOPICS, TYPE_LABELS } from '../../lib/knowledge';
+import { localizeTopic, t, type Locale } from '../../i18n';
+import { compareByRecency, entriesForLocale, labelsFor, TOPICS } from '../../lib/knowledge';
+import { localizedHref } from '../../lib/urls';
 
-const entries = (await getCollection('knowledge', ({ data }) => !data.draft)).sort(compareByRecency);
+interface Props { locale?: Locale; }
+const { locale = 'en' } = Astro.props;
+const messages = t(locale);
+const labels = labelsFor(locale);
+const alternateLocale: Locale = locale === 'en' ? 'zh-tw' : 'en';
+const entries = entriesForLocale(await getCollection('knowledge', ({ data }) => !data.draft), locale).sort(compareByRecency);
 const types = ['case', 'research', 'experiment', 'learning', 'takeaway', 'project', 'question'] as const;
-const usedTopics = TOPICS.filter((topic) => entries.some((entry) => entry.data.topics.includes(topic.slug)));
+const usedTopics = TOPICS.filter((topic) => entries.some((entry) => entry.data.topics.includes(topic.slug))).map((topic) => localizeTopic(topic, locale));
 ---
 
-<BaseLayout title="Knowledge — J-I-P" description="Browse every public engineering knowledge node by type and topic.">
+<BaseLayout title={messages.archive.title} description={messages.archive.description} locale={locale} alternateURL={localizedHref('/knowledge/', alternateLocale)}>
   <main class="container archive">
     <header>
-      <div class="eyebrow">Knowledge archive</div>
-      <h1>Every node, still connected.</h1>
-      <p>Browse the complete public knowledge collection. Filter by what a node represents or by the engineering topic it contributes to.</p>
+      <div class="eyebrow">{messages.archive.eyebrow}</div>
+      <h1>{messages.archive.heading}</h1>
+      <p>{messages.archive.intro}</p>
     </header>
 
-    <form class="filters" aria-label="Filter knowledge nodes">
-      <label>Type<select name="type"><option value="all">All types</option>{types.map((type) => <option value={type}>{TYPE_LABELS[type]}</option>)}</select></label>
-      <label>Topic<select name="topic"><option value="all">All topics</option>{usedTopics.map((topic) => <option value={topic.slug}>{topic.title}</option>)}</select></label>
-      <output aria-live="polite">{entries.length} nodes</output>
+    <form class="filters" aria-label={messages.archive.filterLabel} data-node={messages.archive.node} data-nodes={messages.archive.nodes}>
+      <label>{messages.archive.type}<select name="type"><option value="all">{messages.archive.allTypes}</option>{types.map((type) => <option value={type}>{labels.type[type]}</option>)}</select></label>
+      <label>{messages.archive.topic}<select name="topic"><option value="all">{messages.archive.allTopics}</option>{usedTopics.map((topic) => <option value={topic.slug}>{topic.title}</option>)}</select></label>
+      <output aria-live="polite">{entries.length} {entries.length === 1 ? messages.archive.node : messages.archive.nodes}</output>
     </form>
 
     <div class="grid grid-3 archive-grid">
-      {entries.map((entry) => <div data-entry data-type={entry.data.type} data-topics={entry.data.topics.join(' ')}><KnowledgeCard entry={entry} /></div>)}
+      {entries.map((entry) => <div data-entry data-type={entry.data.type} data-topics={entry.data.topics.join(' ')}><KnowledgeCard entry={entry} locale={locale} /></div>)}
     </div>
-    <p class="empty muted" hidden>No knowledge nodes match these filters.</p>
+    <p class="empty muted" hidden>{messages.archive.empty}</p>
   </main>
 
   <script>
@@ -34,6 +41,8 @@ const usedTopics = TOPICS.filter((topic) => entries.some((entry) => entry.data.t
     const items = [...document.querySelectorAll<HTMLElement>('[data-entry]')];
     const output = form?.querySelector('output');
     const empty = document.querySelector<HTMLElement>('.empty');
+    const singular = form?.dataset.node ?? 'node';
+    const plural = form?.dataset.nodes ?? 'nodes';
 
     function applyFilters() {
       if (!form) return;
@@ -47,7 +56,7 @@ const usedTopics = TOPICS.filter((topic) => entries.some((entry) => entry.data.t
         item.hidden = !matches;
         if (matches) visible += 1;
       }
-      if (output) output.textContent = `${visible} ${visible === 1 ? 'node' : 'nodes'}`;
+      if (output) output.textContent = `${visible} ${visible === 1 ? singular : plural}`;
       if (empty) empty.hidden = visible !== 0;
     }
 

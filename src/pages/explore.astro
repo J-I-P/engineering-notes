@@ -1,11 +1,18 @@
 ---
 import { getCollection } from 'astro:content';
 import ExploreView from '../components/ExploreView.astro';
+import { t, type Locale } from '../i18n';
+import { entriesForLocale } from '../lib/knowledge';
+import { localizedHref } from '../lib/urls';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-const entries = await getCollection('knowledge', ({ data }) => !data.draft);
+interface Props { locale?: Locale; }
+const { locale = 'en' } = Astro.props;
+const messages = t(locale);
+const alternateLocale: Locale = locale === 'en' ? 'zh-tw' : 'en';
+const entries = entriesForLocale(await getCollection('knowledge', ({ data }) => !data.draft), locale);
 ---
 
-<BaseLayout title="Explore — J-I-P" description="Explore engineering knowledge by type, topic, and semantic relationship.">
-  <ExploreView entries={entries} />
+<BaseLayout title={messages.explorePage.title} description={messages.explorePage.description} locale={locale} alternateURL={localizedHref('/explore/', alternateLocale)}>
+  <ExploreView entries={entries} locale={locale} />
 </BaseLayout>

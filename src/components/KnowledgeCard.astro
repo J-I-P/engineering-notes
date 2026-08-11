@@ -1,16 +1,18 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { nodeHref, STATUS_LABELS, TYPE_LABELS } from '../lib/knowledge';
+import type { Locale } from '../i18n';
+import { labelsFor, nodeHref } from '../lib/knowledge';
 
-interface Props { entry: CollectionEntry<'knowledge'>; }
-const { entry } = Astro.props;
+interface Props { entry: CollectionEntry<'knowledge'>; locale?: Locale; }
+const { entry, locale = 'en' } = Astro.props;
 const { data } = entry;
+const labels = labelsFor(locale);
 ---
 
-<a class="knowledge-card card card-hover" href={nodeHref(data.nodeId)}>
+<a class="knowledge-card card card-hover" href={nodeHref(data.nodeId, locale)}>
   <div class="knowledge-card__top">
-    <span class={`pill pill--${data.type}`}><span class="pill-dot"></span>{TYPE_LABELS[data.type]}</span>
-    <span class="knowledge-card__status">{STATUS_LABELS[data.status]}</span>
+    <span class={`pill pill--${data.type}`}><span class="pill-dot"></span>{labels.type[data.type]}</span>
+    <span class="knowledge-card__status">{labels.status[data.status]}</span>
   </div>
   <h3>{data.title}</h3>
   <p>{data.description}</p>

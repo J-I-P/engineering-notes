@@ -1,12 +1,16 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { explicitRelations, indexByNodeId, nodeHref, RELATION_LABELS } from '../lib/knowledge';
+import { t, type Locale } from '../i18n';
+import { explicitRelations, indexByNodeId, labelsFor, nodeHref } from '../lib/knowledge';
 
 interface Props {
   entry: CollectionEntry<'knowledge'>;
   allEntries: CollectionEntry<'knowledge'>[];
+  locale?: Locale;
 }
-const { entry, allEntries } = Astro.props;
+const { entry, allEntries, locale = 'en' } = Astro.props;
+const messages = t(locale);
+const labels = labelsFor(locale);
 const byId = indexByNodeId(allEntries);
 const relations = explicitRelations(entry)
   .map((relation) => ({ ...relation, targetEntry: byId.get(relation.target) }))
@@ -14,15 +18,15 @@ const relations = explicitRelations(entry)
 ---
 
 <aside class="relations card">
-  <div class="eyebrow">Relations</div>
-  <h2>Connected knowledge</h2>
+  <div class="eyebrow">{messages.article.relations}</div>
+  <h2>{messages.article.connected}</h2>
   {relations.length === 0 ? (
-    <p class="muted">No explicit semantic relations yet.</p>
+    <p class="muted">{messages.article.noRelations}</p>
   ) : (
     <div class="relation-list">
       {relations.map((relation) => (
-        <a href={nodeHref(relation.targetEntry!.data.nodeId)}>
-          <span>{RELATION_LABELS[relation.type]}</span>
+        <a href={nodeHref(relation.targetEntry!.data.nodeId, locale)}>
+          <span>{labels.relation[relation.type]}</span>
           <strong>{relation.targetEntry!.data.title}</strong>
         </a>
       ))}

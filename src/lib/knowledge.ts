@@ -1,6 +1,7 @@
 import type { CollectionEntry } from 'astro:content';
 import { FEATURED_TOPICS, topicBySlug } from '../data/topics';
-import { withBase } from './urls';
+import { localizeTopic, t, type Locale } from '../i18n';
+import { localizedHref } from './urls';
 
 export { FEATURED_TOPICS, TOPICS, topicBySlug } from '../data/topics';
 
@@ -39,12 +40,39 @@ export const RELATION_LABELS: Record<RelationType, string> = {
   related_to: 'Related to',
 };
 
-export function nodeHref(nodeId: string) {
-  return withBase(`/knowledge/${nodeId}/`);
+export function entryLocale(entry: KnowledgeEntry): Locale {
+  return entry.data.locale;
 }
 
-export function topicHref(topic: string) {
-  return withBase(`/explore/${topic}/`);
+export function entriesForLocale(entries: KnowledgeEntry[], locale: Locale) {
+  return entries.filter((entry) => entry.data.locale === locale);
+}
+
+export function translationFor(entry: KnowledgeEntry, entries: KnowledgeEntry[], locale: Locale) {
+  return entries.find((candidate) => candidate.data.nodeId === entry.data.nodeId && candidate.data.locale === locale);
+}
+
+export function resolvedEntries(entries: KnowledgeEntry[], locale: Locale) {
+  return entriesForLocale(entries, locale);
+}
+
+export function nodeHref(nodeId: string, locale: Locale = 'en') {
+  return localizedHref(`/knowledge/${nodeId}/`, locale);
+}
+
+export function topicHref(topic: string, locale: Locale = 'en') {
+  return localizedHref(`/explore/${topic}/`, locale);
+}
+
+export function labelsFor(locale: Locale) {
+  const messages = t(locale);
+  return {
+    type: messages.typeLabels,
+    status: messages.statusLabels,
+    relation: messages.relationLabels,
+    evidence: messages.evidenceLabels,
+    disclosure: messages.disclosureLabels,
+  };
 }
 
 export function compareByRecency(a: KnowledgeEntry, b: KnowledgeEntry) {
@@ -76,14 +104,15 @@ export function backlinks(entry: KnowledgeEntry, allEntries: KnowledgeEntry[]) {
   );
 }
 
-export function featuredTopicFor(entry: KnowledgeEntry) {
-  return FEATURED_TOPICS.find((topic) => entry.data.topics.includes(topic.slug));
+export function featuredTopicFor(entry: KnowledgeEntry, locale: Locale = 'en') {
+  const topic = FEATURED_TOPICS.find((item) => entry.data.topics.includes(item.slug));
+  return topic ? localizeTopic(topic, locale) : undefined;
 }
 
-export function topicsFor(entry: KnowledgeEntry) {
+export function topicsFor(entry: KnowledgeEntry, locale: Locale = 'en') {
   return entry.data.topics.flatMap((slug) => {
     const topic = topicBySlug(slug);
-    return topic ? [topic] : [];
+    return topic ? [localizeTopic(topic, locale)] : [];
   });
 }
 
