@@ -5,7 +5,7 @@ description: "As the chatbot accumulated hidden intermediate decisions, tracing 
 type: learning
 status: applied
 publishedAt: 2026-08-10
-topics: [ai-systems, reliability, system-design]
+topics: [ai-agent-architecture, ai-systems, reliability, system-design]
 parent:
     target: prompt-tuning-stopped-being-the-right-abstraction
     relation: derived_from

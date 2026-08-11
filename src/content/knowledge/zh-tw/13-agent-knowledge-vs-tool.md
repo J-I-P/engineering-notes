@@ -5,7 +5,7 @@ description: "一項尚在探索的架構研究：資訊何時應作為模型上
 type: research
 status: exploring
 publishedAt: 2026-08-10
-topics: [ai-systems, system-design, engineering-judgment]
+topics: [ai-agent-architecture, ai-systems, system-design, engineering-judgment]
 parent:
     target: managed-agent-system-boundary
     relation: derived_from

@@ -5,7 +5,7 @@ description: "Adding retrieval changed the chatbot from a model-centric system i
 type: learning
 status: learned
 publishedAt: 2026-08-10
-topics: [ai-systems, system-design, reliability]
+topics: [ai-agent-architecture, ai-systems, system-design, reliability]
 parent:
     target: chatbot-architecture-evolution
     relation: derived_from

@@ -15,6 +15,13 @@ export const TOPICS = [
     order: 1,
   },
   {
+    slug: 'ai-agent-architecture',
+    title: 'AI Agent Architecture',
+    description: 'How chatbot systems evolve through retrieval, orchestration, observability, and managed agent platforms.',
+    featured: true,
+    order: 2,
+  },
+  {
     slug: 'asr',
     title: 'ASR',
     description: 'Automatic speech recognition models and systems.',

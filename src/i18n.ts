@@ -7,6 +7,7 @@ export const DEFAULT_LOCALE: Locale = 'en';
 
 const zhTopics: Record<string, Pick<TopicMetadata, 'title' | 'description'>> = {
   'asr-reliability': { title: 'ASR 可靠性', description: '語音辨識模型、評估方法與 production pipeline 的可靠性。' },
+  'ai-agent-architecture': { title: 'AI Agent 架構', description: 'Chatbot 系統如何透過檢索、orchestration、可觀測性與受管理 Agent 平台持續演進。' },
   asr: { title: 'ASR', description: '自動語音辨識模型與系統。' },
   whisper: { title: 'Whisper', description: 'Whisper 系列語音辨識模型及其行為。' },
   reliability: { title: '可靠性', description: '打造可靠 production system 的工程實務。' },

@@ -5,7 +5,7 @@ description: "檢索、orchestration、可觀測性與 Agent 抽象層，應該�
 type: takeaway
 status: verified
 publishedAt: 2026-08-10
-topics: [engineering-judgment, system-design, ai-systems]
+topics: [ai-agent-architecture, engineering-judgment, system-design, ai-systems]
 parent:
     target: chatbot-architecture-evolution
     relation: derived_from

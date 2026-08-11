@@ -5,7 +5,7 @@ description: "An open question about where to place the boundary between model-d
 type: question
 status: seed
 publishedAt: 2026-08-10
-topics: [ai-systems, system-design, engineering-judgment]
+topics: [ai-agent-architecture, ai-systems, system-design, engineering-judgment]
 parent:
     target: managed-agent-system-boundary
     relation: derived_from

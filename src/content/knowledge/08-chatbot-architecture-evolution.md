@@ -5,7 +5,7 @@ description: "A work-originated chatbot evolved from direct LLM calls into a ret
 type: case
 status: completed
 publishedAt: 2026-08-10
-topics: [ai-systems, system-design, engineering-judgment]
+topics: [ai-agent-architecture, ai-systems, system-design, engineering-judgment]
 origin:
   kind: work
   disclosure: anonymized

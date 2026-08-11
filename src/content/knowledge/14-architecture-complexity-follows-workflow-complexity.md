@@ -5,7 +5,7 @@ description: "Retrieval, orchestration, observability, and agent abstractions sh
 type: takeaway
 status: verified
 publishedAt: 2026-08-10
-topics: [engineering-judgment, system-design, ai-systems]
+topics: [ai-agent-architecture, engineering-judgment, system-design, ai-systems]
 parent:
     target: chatbot-architecture-evolution
     relation: derived_from

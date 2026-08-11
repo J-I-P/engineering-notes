@@ -5,7 +5,7 @@ description: "隨著檢索、路由與中間決策逐漸累積，回應品質問
 type: learning
 status: applied
 publishedAt: 2026-08-10
-topics: [ai-systems, system-design, engineering-judgment]
+topics: [ai-agent-architecture, ai-systems, system-design, engineering-judgment]
 parent:
     target: chatbot-architecture-evolution
     relation: derived_from

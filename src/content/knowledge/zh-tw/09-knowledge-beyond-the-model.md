@@ -5,7 +5,7 @@ description: "加入檢索後，Chatbot 從以模型為中心的系統，轉變�
 type: learning
 status: learned
 publishedAt: 2026-08-10
-topics: [ai-systems, system-design, reliability]
+topics: [ai-agent-architecture, ai-systems, system-design, reliability]
 parent:
     target: chatbot-architecture-evolution
     relation: derived_from

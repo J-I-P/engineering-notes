@@ -5,7 +5,7 @@ description: "隨著 Chatbot 累積愈來愈多隱藏的中間決策，必須透
 type: learning
 status: applied
 publishedAt: 2026-08-10
-topics: [ai-systems, reliability, system-design]
+topics: [ai-agent-architecture, ai-systems, reliability, system-design]
 parent:
     target: prompt-tuning-stopped-being-the-right-abstraction
     relation: derived_from

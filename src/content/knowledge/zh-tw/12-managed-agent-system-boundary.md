@@ -5,7 +5,7 @@ description: "從自訂 orchestration 轉向 Azure AI Agent 改變了系統邊�
 type: learning
 status: applied
 publishedAt: 2026-08-10
-topics: [ai-systems, system-design, engineering-judgment]
+topics: [ai-agent-architecture, ai-systems, system-design, engineering-judgment]
 parent:
     target: chatbot-architecture-evolution
     relation: derived_from

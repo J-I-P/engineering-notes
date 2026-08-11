@@ -5,7 +5,7 @@ description: "一個源自工作的 Chatbot，隨著流程變得複雜，從直�
 type: case
 status: completed
 publishedAt: 2026-08-10
-topics: [ai-systems, system-design, engineering-judgment]
+topics: [ai-agent-architecture, ai-systems, system-design, engineering-judgment]
 origin:
   kind: work
   disclosure: anonymized

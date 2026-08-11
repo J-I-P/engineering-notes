@@ -5,7 +5,7 @@ description: "一個尚未解答的問題：模型驅動的 orchestration 與具
 type: question
 status: seed
 publishedAt: 2026-08-10
-topics: [ai-systems, system-design, engineering-judgment]
+topics: [ai-agent-architecture, ai-systems, system-design, engineering-judgment]
 parent:
     target: managed-agent-system-boundary
     relation: derived_from

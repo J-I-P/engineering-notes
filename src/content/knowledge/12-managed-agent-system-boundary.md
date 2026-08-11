@@ -5,7 +5,7 @@ description: "Moving from custom orchestration toward Azure AI Agent changed the
 type: learning
 status: applied
 publishedAt: 2026-08-10
-topics: [ai-systems, system-design, engineering-judgment]
+topics: [ai-agent-architecture, ai-systems, system-design, engineering-judgment]
 parent:
     target: chatbot-architecture-evolution
     relation: derived_from

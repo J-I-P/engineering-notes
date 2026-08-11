@@ -5,7 +5,7 @@ description: "An open architectural investigation into when information should b
 type: research
 status: exploring
 publishedAt: 2026-08-10
-topics: [ai-systems, system-design, engineering-judgment]
+topics: [ai-agent-architecture, ai-systems, system-design, engineering-judgment]
 parent:
     target: managed-agent-system-boundary
     relation: derived_from
