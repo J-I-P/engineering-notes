@@ -72,9 +72,13 @@ const activeTopics = FEATURED_TOPICS
 
     <section class="section container cases-section">
       <div class="section-heading"><div><div class="eyebrow">{messages.homePage.origins}</div><h2>{messages.homePage.cases}</h2></div></div>
-      <div class="content-list">
-        {cases.map((entry) => (
-          <a href={nodeHref(entry.data.nodeId, locale)}><strong>{entry.data.title}</strong><span aria-hidden="true">↗</span></a>
+      <div class="question-list">
+        {cases.map((entry, index) => (
+          <a href={nodeHref(entry.data.nodeId, locale)}>
+            <span class="number">{String(index + 1).padStart(2, '0')}</span>
+            <div><strong>{entry.data.title}</strong><p>{entry.data.description}</p></div>
+            <span aria-hidden="true">↗</span>
+          </a>
         ))}
       </div>
     </section>
